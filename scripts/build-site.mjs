@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Assemble the Pages artifact: site/ + the shared rule module + index.json +
+// Assemble the Pages artifact: site/ + the shared rule modules + index.json +
 // the entry schema. The site imports ./lib/entry.mjs, the same file the CI runs.
 //
 //   node scripts/build-site.mjs [out=dist] [--index-root <dir>]   (index-root defaults to .)
@@ -25,7 +25,9 @@ await rm(out, { recursive: true, force: true });
 await cp(join(repoRoot, 'site'), out, { recursive: true });
 await mkdir(join(out, 'lib'), { recursive: true });
 await mkdir(join(out, 'schema'), { recursive: true });
+// The browser runs the CI's own rule modules; both are free of Node APIs.
 await cp(join(repoRoot, 'scripts/lib/entry.mjs'), join(out, 'lib/entry.mjs'));
+await cp(join(repoRoot, 'scripts/lib/source-rules.mjs'), join(out, 'lib/source-rules.mjs'));
 await cp(join(repoRoot, 'schema/entry.schema.json'), join(out, 'schema/entry.schema.json'));
 await writeFile(join(out, 'index.json'), `${JSON.stringify(index, null, 2)}\n`);
 await writeFile(join(out, '.nojekyll'), '');

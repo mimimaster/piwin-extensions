@@ -2,6 +2,9 @@
 import { registryRepo } from './config.js';
 import { codeLine, copyButton, externalLink, h } from './dom.js';
 import { buildUpdate, commitUrl, editFileUrl } from './entry-builder.js';
+import { fetchHeadCommit, fetchRepository, parseRepositoryInput } from './github-api.js';
+import { describeProblem } from './problem-text.js';
+import { inspectSource } from './source-inspect.js';
 import { latestInstallable } from './search.js';
 import { avatar, chip, icon } from './ui.js';
 import { resultBlock } from './view-result.js';
@@ -123,6 +126,37 @@ function maintainerPanel(entry) {
     yankReason: h('input', { placeholder: '为什么撤回', 'aria-label': '撤回原因' }),
   };
   const output = h('div', { class: 'output' });
+  const sourceStatus = h('div', { class: 'source-status', 'aria-live': 'polite' });
+  const parsedRepo = parseRepositoryInput(entry.repository);
+
+  /** Fill the default branch head, then check it with the CI's source rules. */
+  const latestButton = h('button', { type: 'button', class: 'inline-action' }, '用最新 commit');
+  latestButton.addEventListener('click', async () => {
+    latestButton.disabled = true;
+    sourceStatus.replaceChildren(h('p', { class: 'fine' }, h('span', { class: 'spinner' }), '读取最新 commit 并检查源码…'));
+    try {
+      const info = await fetchRepository(parsedRepo.owner, parsedRepo.repo);
+      const commit = await fetchHeadCommit(parsedRepo.owner, parsedRepo.repo, info.defaultBranch);
+      fields.commit.value = commit;
+      const result = await inspectSource({ repository: entry.repository, commit, subdir: entry.subdir });
+      if (!fields.version.value && result.packageVersion) fields.version.value = result.packageVersion;
+      const published = entry.versions.find((version) => version.commit === commit);
+      sourceStatus.replaceChildren(
+        published
+          ? h('div', { class: 'callout warn' }, icon('alert', 18), h('span', {}, `这个 commit 已经发布为 ${published.version}，先推送新的提交。`))
+          : result.problems.length > 0
+            ? h('div', { class: 'callout danger' }, icon('alert', 18),
+                h('span', {}, result.problems.map((problem) => describeProblem(problem).text).join('；')))
+            : h('div', { class: 'callout ok' }, icon('check', 18),
+                h('span', {}, `源码检查通过 · ${info.defaultBranch}@${commit.slice(0, 12)}${result.packageVersion ? ` · package.json ${result.packageVersion}` : ''}`)),
+      );
+    } catch (error) {
+      sourceStatus.replaceChildren(h('div', { class: 'callout danger' }, icon('alert', 18), h('span', {}, error.message)));
+    } finally {
+      latestButton.disabled = false;
+    }
+  });
+
   const generate = () => {
     const result = buildUpdate(entry, {
       version: fields.version.value,
@@ -142,16 +176,17 @@ function maintainerPanel(entry) {
     h('summary', {}, h('span', {}, '我是作者：发新版本 / 撤回版本'), icon('arrowRight', 16)),
     h('div', { class: 'form-grid two' },
       field('新版本号', fields.version),
-      field('新版本 commit', fields.commit),
+      field(h('span', { class: 'field-label' }, '新版本 commit', parsedRepo ? latestButton : null), fields.commit),
       field('撤回某个版本', fields.yankVersion),
       field('撤回原因', fields.yankReason),
       h('label', { class: 'check' }, fields.stampDate, '写入发布时间'),
     ),
+    sourceStatus,
     h('button', { type: 'button', class: 'button', onClick: generate }, '生成更新后的条目'),
     output,
   );
 }
 
-function field(text, control) {
-  return h('label', { class: 'field' }, h('span', {}, text), control);
+function field(label, control) {
+  return h('label', { class: 'field' }, typeof label === 'string' ? h('span', { class: 'field-label' }, label) : label, control);
 }

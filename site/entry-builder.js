@@ -1,6 +1,7 @@
 // Build entry files in the browser with the CI's own rule module
 // (scripts/lib/entry.mjs, published as ./lib/entry.mjs).
-import { formatEntry, parseEntryPath, validateEntry } from './lib/entry.mjs';
+import { NAME_PATTERN, OWNER_PATTERN, formatEntry, validateEntry } from './lib/entry.mjs';
+import { describeProblem } from './problem-text.js';
 import { BRANCH, MAX_PREFILL_URL_LENGTH } from './config.js';
 
 const KEY_ORDER = [
@@ -42,44 +43,60 @@ const splitList = (value) =>
     .filter(Boolean);
 
 /**
- * @param {Record<string, string>} form  raw field values
+ * @param {Record<string, string | boolean>} form  raw field values
  * @param {Array} extensions  current index entries
+ * @returns {{ id, owner, name, entry, text, issues: Array<{ field, text }>, problems: string[] }}
  */
 export function buildSubmission(form, extensions) {
   const owner = form.owner.trim().toLowerCase();
   const name = form.slug.trim().toLowerCase();
   const id = `${owner}/${name}`;
-  const problems = [];
-  if (!parseEntryPath(`extensions/${owner}/${name}.json`)) {
-    problems.push('发布到 / 扩展标识：只能用小写字母、数字和 -（GitHub 用户名规则）');
+  const issues = [];
+  if (!OWNER_PATTERN.test(owner)) {
+    issues.push({ field: 'owner', text: '填你的 GitHub 用户名或组织（小写字母、数字、-）' });
   }
-  const owners = [...new Set([owner, ...splitList(form.extraOwners.toLowerCase())])].filter(Boolean);
-  const version = { version: form.version.trim(), commit: form.commit.trim().toLowerCase() };
+  if (!NAME_PATTERN.test(name)) {
+    issues.push({ field: 'slug', text: '只能用小写字母、数字和 -，以字母或数字开头' });
+  }
+  const owners = [...new Set([owner, ...splitList(String(form.extraOwners).toLowerCase())])].filter(Boolean);
+  const version = { version: String(form.version).trim(), commit: String(form.commit).trim().toLowerCase() };
   if (form.stampDate) version.publishedAt = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
   const entry = canonicalEntry({
-    name: form.name.trim(),
-    description: form.description.trim(),
+    name: String(form.name).trim(),
+    description: String(form.description).trim(),
     owners,
-    repository: form.repository.trim().replace(/\/+$/, ''),
-    subdir: form.subdir.trim(),
-    license: form.license.trim(),
-    keywords: splitList(form.keywords),
-    homepage: form.homepage.trim(),
+    repository: String(form.repository).trim().replace(/\/+$/, ''),
+    subdir: String(form.subdir).trim(),
+    license: String(form.license).trim(),
+    keywords: splitList(String(form.keywords)),
+    homepage: String(form.homepage).trim(),
     forkOf: form.forkId ? { id: form.forkId, version: form.forkVersion } : undefined,
     versions: [version],
   });
-  problems.push(...validateEntry(entry, id));
-  if (extensions.some((existing) => existing.id === id)) {
-    problems.push(`${id} 已存在；要发新版本请到它的详情页`);
+  for (const problem of validateEntry(entry, id)) {
+    const described = describeProblem(problem);
+    // The owner field feeds owners[0]; a bad owner is already reported above.
+    if (described.field === 'owner' && issues.some((issue) => issue.field === 'owner')) continue;
+    issues.push(described);
   }
+  const existing = extensions.find((item) => item.id === id);
+  if (existing) issues.push({ field: 'slug', text: `${id} 已经存在，要发新版本请到它的详情页` });
   if (entry.forkOf) {
-    const base = extensions.find((existing) => existing.id === entry.forkOf.id);
-    if (!base) problems.push(`改装来源 ${entry.forkOf.id} 不在仓库里`);
+    const base = extensions.find((item) => item.id === entry.forkOf.id);
+    if (!base) issues.push({ field: 'forkId', text: `改装来源 ${entry.forkOf.id} 不在仓库里` });
     else if (!base.versions.some((item) => item.version === entry.forkOf.version)) {
-      problems.push(`改装来源 ${entry.forkOf.id} 没有版本 ${entry.forkOf.version}`);
+      issues.push({ field: 'forkVersion', text: `${entry.forkOf.id} 没有版本 ${entry.forkOf.version}` });
     }
   }
-  return { id, owner, name, entry, problems, text: formatEntry(entry) };
+  return {
+    id,
+    owner,
+    name,
+    entry,
+    text: formatEntry(entry),
+    issues,
+    problems: issues.map((issue) => issue.text),
+  };
 }
 
 /** New version on top and/or a yank; everything published stays as it was. */

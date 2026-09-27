@@ -270,3 +270,38 @@ describe('source checks', () => {
     assert.ok(problems.some((problem) => problem.includes('no index.ts')));
   });
 });
+
+describe('source rules on a listing (what the web front end checks)', async () => {
+  const { checkPackageJsonText, checkSourceListing, findExtensionRoots } = await import('./lib/source-rules.mjs');
+  const listing = [
+    { path: 'README.md', kind: 'file', size: 10 },
+    { path: 'extension', kind: 'dir' },
+    { path: 'extension/index.ts', kind: 'file', size: 100 },
+    { path: 'extension/package.json', kind: 'file', size: 50 },
+    { path: 'extension/link', kind: 'symlink' },
+    { path: 'tools', kind: 'dir' },
+    { path: 'tools/single.ts', kind: 'file', size: 30 },
+    { path: 'test', kind: 'dir' },
+    { path: 'test/index.ts', kind: 'file', size: 1 },
+  ];
+
+  it('checks directory and single-file targets', () => {
+    const dir = checkSourceListing(listing, 'extension');
+    assert.equal(dir.packageJsonPath, 'extension/package.json');
+    assert.deepEqual(dir.problems, ['symbolic link not allowed: link']);
+    assert.deepEqual(checkSourceListing(listing, 'tools/single.ts').problems, []);
+    assert.ok(checkSourceListing(listing, 'missing').problems[0].includes('does not exist'));
+    assert.ok(checkSourceListing(listing, undefined).problems.some((problem) => problem.includes('no index.ts')));
+  });
+
+  it('flags dependencies and install scripts in package.json text', () => {
+    assert.deepEqual(checkPackageJsonText('{"peerDependencies":{"x":"1"}}'), []);
+    const problems = checkPackageJsonText('{"dependencies":{"x":"1"},"scripts":{"prepare":"x"}}');
+    assert.equal(problems.length, 2);
+  });
+
+  it('finds candidate extension directories, skipping tests', () => {
+    assert.deepEqual(findExtensionRoots(listing), ['extension']);
+    assert.deepEqual(findExtensionRoots([{ path: 'index.ts', kind: 'file' }]), ['']);
+  });
+});
