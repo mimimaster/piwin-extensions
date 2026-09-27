@@ -1,0 +1,23 @@
+{
+  "name": "Command Code for piwin",
+  "description": "Adds Command Code login, Go/GOAT model access, dynamic model discovery, and quota commands to piwin. Adapted from patlux/pi-commandcode-provider.",
+  "owners": [
+    "mimimaster"
+  ],
+  "repository": "https://github.com/mimimaster/piwin-commandcode-provider",
+  "subdir": "piwin",
+  "license": "MIT",
+  "keywords": [
+    "commandcode",
+    "provider",
+    "oauth",
+    "models"
+  ],
+  "homepage": "https://github.com/mimimaster/piwin-commandcode-provider/tree/main/piwin",
+  "versions": [
+    {
+      "version": "0.7.1-piwin.1",
+      "commit": "8ff038e7cb425d2210abfeebef9bfc2f6e6e66ad"
+    }
+  ]
+}
