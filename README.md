@@ -25,7 +25,7 @@ piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文�
 | `scripts/validate-entry.mjs` | 检查单个条目，并拉取固定 commit 检查源码结构 |
 | `scripts/build-index.mjs` | 汇总条目生成 `index.json`，版本按新到旧排序 |
 | `scripts/build-site.mjs` | 组装 Pages：`site/` + `lib/entry.mjs` + `index.json` + schema |
-| `site/` | 纯静态前台：搜索、详情、一键发布（登录 + 拖入）、手动填写、发新版本 / 撤回 |
+| `site/` | 纯静态前台：搜索、详情、选择 GitHub 仓库或本地上传发布、手动填写、发新版本 / 撤回 |
 | `worker/` | Cloudflare Worker：OAuth 授权码换 token，不存储不记录 |
 | `.github/workflows/validate.yml` | `pull_request_target`，只检出 base，结果写 PR 评论 + check |
 | `.github/workflows/publish.yml` | push 到 `main`：测试 → 构建 → 部署 Pages |
@@ -93,4 +93,3 @@ PIWIN_EXTENSION_REGISTRY_URL=https://<you>.github.io/<repo>/index.json
 ```
 
 网页前台会根据 `<you>.github.io/<repo>` 自动指向你自己的仓库。
-

@@ -18,15 +18,20 @@ piwin 安装时只拉取你指定的 commit，把源码原样放进不可变目�
   `peerDependencies`；其他依赖请打包进源码。
 - 不能有 `preinstall` / `install` / `postinstall` / `prepare` 脚本。
 - 不能有符号链接和 `node_modules`；总大小 ≤ 5 MB，文件数 ≤ 2000。
-- 手动填写时：仓库必须公开，commit 必须已经推送。一键发布会替你建仓库、推送，不需要这一步。
+- 选择现有 GitHub 仓库或手动填写时：仓库必须公开，commit 必须已经推送。本地文件上传会替你建仓库、推送。
 
 扩展在 piwin 里能用哪些 Pi 能力、怎么把依赖 Pi 终端界面（TUI）的扩展改造过来、怎么打包和本地调试，
 见 **[Pi 扩展开发与 piwin 适配指南](https://docs.piwinwin.com/docs/extension-development)**。
 
 ## 2. 发布新扩展
 
-**一键发布（推荐）**：打开网页的「发布扩展」→ 用 GitHub 登录 → 把扩展文件夹（或 zip、单个 `.ts`）
-拖进去 → 确认从 package.json 读出的名称、版本、许可证 →「一键发布」。页面会以你的身份：
+**选择现有仓库（推荐）**：打开网页的「发布扩展」→ 用 GitHub 登录 → 从你的公开仓库中选一个 →
+选择扩展目录，确认名称、版本、许可证 →「发布到扩展市场」。页面会检查当前 commit 的源码，
+再以你的身份提交固定到该 commit 的条目 PR。源码仓库不会被修改。默认分支若在检查后变化，
+请重新选择仓库并检查。
+
+**上传本地文件**：切到「上传本地文件」，拖入扩展文件夹（或 zip、单个 `.ts`）→
+确认从 package.json 读出的名称、版本、许可证 →「一键发布」。页面会以你的身份：
 
 1. 在你的账号下创建 `piwin-<扩展名>` 公开仓库，推送这些文件（缺 README / MIT 的 LICENSE 会自动补上）；
 2. fork 扩展仓库，写入条目 `extensions/<你的用户名>/<扩展名>.json`（固定到刚才的 commit）；
@@ -35,7 +40,7 @@ piwin 安装时只拉取你指定的 commit，把源码原样放进不可变目�
 发布前页面会用和 CI 相同的规则先检查一遍源码。登录需要 `public_repo` 权限（创建仓库、fork、开 PR），
 token 只存在当前浏览器标签页里，可以随时在 GitHub → Settings → Applications 撤销。
 
-**手动填写**：源码已经在 GitHub 上、要发到组织名下，或不想授权时，用「手动填写」：
+**手动填写**：要发到组织名下，或不想授权时，用「手动填写」：
 贴仓库地址自动填表 →「生成 PR 链接」→ GitHub 的新建文件页（没有写权限时 GitHub 会自动 fork 并替你开 PR）。
 也可以直接 fork 本仓库，新建 `extensions/<你的 GitHub 用户名>/<扩展名>.json`，运行 `npm run format`，提 PR。
 

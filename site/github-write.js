@@ -59,6 +59,8 @@ export function createGitHubWriter(token) {
 
   const writer = {
     user: () => call('GET', '/user'),
+    listRepositories: (page = 1) =>
+      call('GET', `/user/repos?visibility=public&affiliation=owner&sort=updated&per_page=100&page=${page}`),
     getRepo: (owner, repo) => call('GET', `/repos/${owner}/${repo}`, undefined, { allow404: true }),
     createRepo: (fields) =>
       call('POST', '/user/repos', { ...fields, auto_init: true, has_wiki: false, has_projects: false }),
