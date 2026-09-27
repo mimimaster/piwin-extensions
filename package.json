@@ -7,7 +7,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test scripts/*.test.mjs",
+    "test": "node --test scripts/*.test.mjs worker/*.test.mjs",
     "format": "node scripts/format.mjs",
     "validate": "node scripts/validate-entry.mjs",
     "build": "node scripts/build-site.mjs dist",

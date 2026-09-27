@@ -1,10 +1,12 @@
-// Hash router: #/  ·  #/ext/<owner>/<name>  ·  #/submit
+// Hash router: #/  ·  #/ext/<owner>/<name>  ·  #/submit (one-click)  ·  #/submit/manual
+import { completeSignIn } from './auth.js';
 import { registryRepo } from './config.js';
 import { externalLink, h } from './dom.js';
 import { icon } from './ui.js';
 import { detailView } from './view-detail.js';
 import { listView } from './view-list.js';
 import { submitView } from './view-submit.js';
+import { uploadView } from './view-upload.js';
 
 const main = document.querySelector('main');
 let extensions = [];
@@ -28,9 +30,12 @@ function render() {
     const entry = extensions.find((item) => item.id === id);
     document.title = entry ? `${entry.name} · piwin 扩展仓库` : 'piwin 扩展仓库';
     view = detailView(entry, extensions);
-  } else if (route === 'submit') {
-    document.title = '提交扩展 · piwin 扩展仓库';
+  } else if (route === 'submit/manual') {
+    document.title = '手动填写 · piwin 扩展仓库';
     view = submitView(extensions);
+  } else if (route === 'submit') {
+    document.title = '发布扩展 · piwin 扩展仓库';
+    view = uploadView(extensions);
   } else {
     document.title = 'piwin 扩展仓库';
     view = listView(extensions, query, (value) => {
@@ -39,7 +44,7 @@ function render() {
   }
   main.replaceChildren(view);
   for (const link of document.querySelectorAll('[data-nav]')) {
-    const section = route === 'submit' ? '#/submit' : '#/';
+    const section = route.startsWith('submit') ? '#/submit' : '#/';
     link.toggleAttribute('aria-current', link.getAttribute('href') === section);
   }
   window.scrollTo(0, 0);
@@ -48,15 +53,22 @@ function render() {
 function renderChrome() {
   const repo = registryRepo();
   for (const slot of document.querySelectorAll('[data-repo-link]')) {
-    slot.replaceWith(externalLink(`https://github.com/${repo}`, [icon('github', 16), ' GitHub'], slot.className));
+    slot.replaceWith(
+      externalLink(`https://github.com/${repo}`, [icon('github', 16), h('span', { class: 'nav-text' }, 'GitHub')], slot.className),
+    );
   }
 }
 
 renderChrome();
+// OAuth callback (?code=&state=): finish sign-in before the first render.
+const signInResult = await completeSignIn();
 try {
   extensions = await loadIndex();
   window.addEventListener('hashchange', render);
   render();
+  if (signInResult && !signInResult.ok) {
+    main.prepend(h('div', { class: 'callout danger' }, icon('alert', 18), h('span', {}, signInResult.error)));
+  }
 } catch (error) {
   main.replaceChildren(
     h('div', { class: 'empty' },

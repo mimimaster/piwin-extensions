@@ -1,0 +1,18 @@
+# Cloudflare Worker: GitHub OAuth token exchange for the piwin extension registry site.
+name = "piwin-extensions-auth"
+main = "src/index.js"
+compatibility_date = "2026-09-01"
+workers_dev = true
+
+[vars]
+# The only origin allowed to call /token (the GitHub Pages site).
+ALLOWED_ORIGIN = "https://mimimaster.github.io"
+# Public identifier of the GitHub OAuth App. Fill in after creating the app.
+GITHUB_CLIENT_ID = ""
+
+# GITHUB_CLIENT_SECRET is a secret, never a var:
+#   npx wrangler secret put GITHUB_CLIENT_SECRET
+
+[observability]
+# No request logging: codes and tokens pass through here.
+enabled = false

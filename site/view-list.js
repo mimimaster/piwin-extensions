@@ -85,14 +85,14 @@ function emptyState(registryEmpty, query) {
     h('div', { class: 'seal seal-lg', 'aria-hidden': 'true' }, '砚'),
     h('h3', {}, '砚台已备，还没有第一支笔'),
     h('p', {}, '仓库刚刚开张。把你写的 Pi 扩展提交上来，它会成为这里的第一个条目。'),
-    h('a', { href: '#/submit', class: 'button' }, icon('send', 16), '提交第一个扩展'),
+    h('a', { href: '#/submit', class: 'button' }, icon('send', 16), '发布第一个扩展'),
   );
 }
 
 function howItWorks() {
   const steps = [
-    ['code', '写一个 Pi 扩展', '在你自己的公开仓库里写好 index.ts，没有 npm 依赖，也没有安装脚本。'],
-    ['send', '提交一个条目', '在「提交扩展」填表，GitHub 会帮你 fork 并开 PR；CI 自动检查所有权和源码结构。'],
+    ['code', '写一个 Pi 扩展', '一个 index.ts 就够了；不要 npm 依赖，也不要安装脚本。'],
+    ['send', '拖进来一键发布', '用 GitHub 登录，把扩展文件夹拖进「发布扩展」；页面替你建仓库、开 PR，CI 自动检查。'],
     ['download', '在 piwin 里安装', '合并后几分钟，桌面端扩展市场就能搜到；命令行一行安装，固定到你提交的 commit。'],
   ];
   return h('section', { class: 'how' },

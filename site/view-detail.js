@@ -8,6 +8,7 @@ import { inspectSource } from './source-inspect.js';
 import { latestInstallable } from './search.js';
 import { avatar, chip, icon } from './ui.js';
 import { resultBlock } from './view-result.js';
+import { uploadVersionPanel } from './view-upload-version.js';
 
 const installCommand = (id, version) => `piwin extension install --registry ${id}@${version}`;
 
@@ -52,6 +53,7 @@ export function detailView(entry, extensions) {
     h('div', { class: 'detail-grid' },
       h('div', { class: 'detail-main' },
         h('section', { class: 'block' }, h('h2', {}, '版本'), versionTimeline(entry)),
+        uploadVersionPanel(entry),
         maintainerPanel(entry),
       ),
       h('aside', { class: 'detail-aside' },
@@ -173,7 +175,7 @@ function maintainerPanel(entry) {
   return h(
     'details',
     { class: 'panel maintainer' },
-    h('summary', {}, h('span', {}, '我是作者：发新版本 / 撤回版本'), icon('arrowRight', 16)),
+    h('summary', {}, h('span', {}, '手动：填 commit 发版本 / 撤回版本'), icon('arrowRight', 16)),
     h('div', { class: 'form-grid two' },
       field('新版本号', fields.version),
       field(h('span', { class: 'field-label' }, '新版本 commit', parsedRepo ? latestButton : null), fields.commit),

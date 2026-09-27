@@ -19,11 +19,13 @@ piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文�
 | `schema/entry.schema.json` | 条目 JSON Schema（给编辑器用） |
 | `schema/fixtures/` | 合法 / 非法样例；piwin 客户端的解析器测试用同一份 |
 | `scripts/lib/entry.mjs` | 条目规则。CI、单文件检查和网页前台用的是**同一个文件** |
+| `scripts/lib/source-rules.mjs` | 源码结构规则（纯函数）。CI 喂 git checkout，网页喂 GitHub 文件列表或上传的文件 |
 | `scripts/validate-pr.mjs` | PR 检查（CI 用 `--github`，本地用 `--base/--head`） |
 | `scripts/validate-entry.mjs` | 检查单个条目，并拉取固定 commit 检查源码结构 |
 | `scripts/build-index.mjs` | 汇总条目生成 `index.json`，版本按新到旧排序 |
 | `scripts/build-site.mjs` | 组装 Pages：`site/` + `lib/entry.mjs` + `index.json` + schema |
-| `site/` | 纯静态前台：搜索、详情、提交扩展、发新版本 / 撤回 |
+| `site/` | 纯静态前台：搜索、详情、一键发布（登录 + 拖入）、手动填写、发新版本 / 撤回 |
+| `worker/` | Cloudflare Worker：OAuth 授权码换 token，不存储不记录 |
 | `.github/workflows/validate.yml` | `pull_request_target`，只检出 base，结果写 PR 评论 + check |
 | `.github/workflows/publish.yml` | push 到 `main`：测试 → 构建 → 部署 Pages |
 
@@ -44,6 +46,37 @@ piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文�
    - 禁止强推和删除分支；
    - 仓库管理员可以绕过：你改 `scripts/`、`site/` 时 `validate` 会失败（提交型 PR 只允许改 `extensions/**`），直接绕过合并即可。
 
+## 一键发布：GitHub 登录的配置
+
+网页的「发布扩展」让作者登录 GitHub 后拖入文件夹一键发布（ADR 0077 §5）。它需要一个 OAuth App
+和一个只做授权码换 token 的 Cloudflare Worker（`worker/`）。没配置之前，页面会提示"登录配置中"，
+并引导到「手动填写」。
+
+仓库主人需要做（涉及账号凭据，脚本不代劳）：
+
+1. **创建 OAuth App**：GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
+   - Application name：`piwin 扩展仓库`
+   - Homepage URL：`https://mimimaster.github.io/piwin-extensions/`
+   - Authorization callback URL：`https://mimimaster.github.io/piwin-extensions/`
+   - 不勾选 Enable Device Flow
+   - 创建后记下 **Client ID**；点 Generate a new client secret，**Client Secret 只自己保存**。
+2. **部署 Worker**（需要 Cloudflare 账号，免费版即可）：
+
+   ```bash
+   cd worker
+   npx wrangler login                              # 浏览器里授权 Cloudflare
+   # 把 wrangler.toml 里的 GITHUB_CLIENT_ID 填成上一步的 Client ID
+   npx wrangler secret put GITHUB_CLIENT_SECRET    # 粘贴 Client Secret（只存进 Cloudflare）
+   npx wrangler deploy                             # 输出 https://piwin-extensions-auth.<你的子域>.workers.dev
+   ```
+
+3. **把地址写进站点**：`site/config.js` 里 `OAUTH_CLIENT_ID` 填 Client ID，`AUTH_WORKER_URL`
+   填 Worker 地址（不带结尾 `/`），推到 main，Pages 自动重新部署。
+
+Worker 只做一件事：收到网页发来的授权码，带上 secret 向 GitHub 换 token 再原样返回；
+只允许 `https://mimimaster.github.io` 跨域调用，不存储、不记录（`observability` 已关闭）。
+token 只保存在用户浏览器标签页的 sessionStorage 里。
+
 ## 合并建议
 
 - 新扩展：看一眼源码（CI 评论里有固定 commit 链接）再合并。
@@ -60,7 +93,3 @@ PIWIN_EXTENSION_REGISTRY_URL=https://<you>.github.io/<repo>/index.json
 
 网页前台会根据 `<you>.github.io/<repo>` 自动指向你自己的仓库。
 
-## 后续
-
-- **GitHub 登录后一键提交**：需要一个换取 OAuth token 的小服务（例如 Cloudflare Worker），
-  目前未实现，见 ADR 0077 §5。现在的网页提交用 GitHub 的新建文件页，不需要任何后端。
