@@ -13,7 +13,11 @@ const VERIFIER_PATTERN = /^[A-Za-z0-9._~-]{43,128}$/;
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('origin') ?? '';
-    const allowed = origin === env.ALLOWED_ORIGIN;
+    const allowedOrigins = (env.ALLOWED_ORIGIN ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const allowed = allowedOrigins.includes(origin);
     const cors = allowed
       ? {
           'access-control-allow-origin': origin,

@@ -44,6 +44,29 @@ describe('token exchange worker', () => {
     assert.equal(response.headers.get('access-control-allow-origin'), null);
   });
 
+  it('supports comma-separated allowed origins', async () => {
+    const multiEnv = { ...env, ALLOWED_ORIGIN: 'https://extension.piwinwin.com, https://mimimaster.github.io' };
+    const preflight1 = await worker.fetch(
+      new Request('https://auth.example/token', { method: 'OPTIONS', headers: { origin: 'https://extension.piwinwin.com' } }),
+      multiEnv,
+    );
+    assert.equal(preflight1.status, 204);
+    assert.equal(preflight1.headers.get('access-control-allow-origin'), 'https://extension.piwinwin.com');
+
+    const preflight2 = await worker.fetch(
+      new Request('https://auth.example/token', { method: 'OPTIONS', headers: { origin: 'https://mimimaster.github.io' } }),
+      multiEnv,
+    );
+    assert.equal(preflight2.status, 204);
+    assert.equal(preflight2.headers.get('access-control-allow-origin'), 'https://mimimaster.github.io');
+
+    const preflightEvil = await worker.fetch(
+      new Request('https://auth.example/token', { method: 'OPTIONS', headers: { origin: 'https://evil.example' } }),
+      multiEnv,
+    );
+    assert.equal(preflightEvil.status, 403);
+  });
+
   it('answers preflight and rejects malformed input', async () => {
     const preflight = await worker.fetch(
       new Request('https://auth.example/token', { method: 'OPTIONS', headers: { origin: env.ALLOWED_ORIGIN } }),
