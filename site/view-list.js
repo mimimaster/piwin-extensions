@@ -93,7 +93,7 @@ function howItWorks() {
   const steps = [
     ['code', '写一个 Pi 扩展', '一个 index.ts 就够了；不要 npm 依赖，也不要安装脚本。'],
     ['send', '拖进来一键发布', '用 GitHub 登录，把扩展文件夹拖进「发布扩展」；页面替你建仓库、开 PR，CI 自动检查。'],
-    ['download', '在 piwin 里安装', '合并后几分钟，桌面端扩展市场就能搜到；命令行一行安装，固定到你提交的 commit。'],
+    ['download', '在 piwin 里安装', '合并后几分钟，在桌面端扩展市场搜索名称并点击安装；CLI 暂不使用。'],
   ];
   return h('section', { class: 'how' },
     h('h2', {}, '三步上架'),

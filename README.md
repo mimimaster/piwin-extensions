@@ -4,8 +4,7 @@ piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文�
 **固定 commit** 的源码。合并到 `main` 后，CI 生成 `index.json`，和网页前台一起部署到 GitHub Pages。
 
 - 网页：<https://mimimaster.github.io/piwin-extensions/>
-- 索引：<https://mimimaster.github.io/piwin-extensions/index.json>（piwin 市场搜索和
-  `piwin extension install --registry` 读这个）
+- 索引：<https://mimimaster.github.io/piwin-extensions/index.json>（piwin 桌面端扩展市场读取；CLI 暂不使用）
 - 怎么提交：[CONTRIBUTING.md](CONTRIBUTING.md)
 - 怎么写 / 改造扩展：[Pi 扩展开发与 piwin 适配指南](https://docs.piwinwin.com/docs/extension-development)
 - 设计记录：piwin 仓库 `docs/adr/0077-github-extension-registry.md`；接入说明：
