@@ -1,6 +1,6 @@
 // Extension page: header, versions, install card, facts, maintainer panel.
 import { registryRepo } from './config.js';
-import { codeLine, copyButton, externalLink, h } from './dom.js';
+import { copyButton, externalLink, h } from './dom.js';
 import { buildUpdate, commitUrl, editFileUrl } from './entry-builder.js';
 import { fetchHeadCommit, fetchRepository, parseRepositoryInput } from './github-api.js';
 import { describeProblem } from './problem-text.js';
@@ -9,8 +9,6 @@ import { latestInstallable } from './search.js';
 import { avatar, chip, icon } from './ui.js';
 import { resultBlock } from './view-result.js';
 import { uploadVersionPanel } from './view-upload-version.js';
-
-const installCommand = (id, version) => `piwin extension install --registry ${id}@${version}`;
 
 export function detailView(entry, extensions) {
   if (!entry) {
@@ -71,9 +69,7 @@ function installCard(entry, latest) {
   return h('div', { class: 'panel install' },
     h('h2', {}, '安装'),
     h('p', { class: 'muted' }, '桌面端：扩展市场里搜索名称，点「安装」。'),
-    h('p', { class: 'muted' }, '命令行：'),
-    codeLine(installCommand(entry.id, latest.version)),
-    codeLine(`piwin extension enable ${entry.id.replace('/', '-')}`),
+    h('p', { class: 'muted' }, 'CLI 暂不使用。'),
     h('p', { class: 'fine' }, icon('pin', 14), `固定到 commit ${latest.commit.slice(0, 12)}`),
   );
 }
