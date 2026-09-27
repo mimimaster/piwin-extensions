@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../schema/entry.schema.json",
+  "name": "Hello piwin",
+  "description": "示例条目：不会进入 index.json。复制到 extensions/<你的用户名>/<扩展名>.json 再修改。",
+  "owners": [
+    "alice"
+  ],
+  "repository": "https://github.com/alice/hello-piwin",
+  "subdir": "extension",
+  "license": "MIT",
+  "keywords": [
+    "example"
+  ],
+  "versions": [
+    {
+      "version": "1.0.0",
+      "commit": "0123456789abcdef0123456789abcdef01234567"
+    }
+  ]
+}

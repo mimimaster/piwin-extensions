@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="piwin 社区扩展：搜索、查看固定 commit、提交你自己的 Pi 扩展。" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'"
+    />
+    <title>piwin 扩展仓库</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#/">piwin 扩展</a>
+      <nav>
+        <a data-nav href="#/">浏览</a>
+        <a data-nav href="#/submit">提交扩展</a>
+        <span data-repo-link></span>
+        <a href="./index.json">index.json</a>
+      </nav>
+    </header>
+    <main><p class="muted">加载中…</p></main>
+    <footer class="muted">
+      条目通过 CI 结构检查并经维护者合并，但不等于安全审查。扩展启用后以你的系统权限运行，安装前请看源码。
+    </footer>
+  </body>
+</html>

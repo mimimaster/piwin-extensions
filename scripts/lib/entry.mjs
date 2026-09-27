@@ -1,6 +1,10 @@
 // Strict validation of one registry entry file: extensions/<owner>/<name>.json.
-// The piwin client parser (@piwin/marketplace parse-registry-index.ts) is
-// lenient about unknown keys; this CI gate is the strict one.
+//
+// One module, three users: the PR check (scripts/validate-pr.mjs), the
+// single-file check (scripts/validate-entry.mjs), and the web front end, which
+// imports this file as-is (no Node APIs here). Every rule piwin's client parser
+// (@piwin/marketplace parse-registry-index.ts) enforces is enforced here too;
+// this side is stricter about form (unknown keys, lowercase, no `.git`).
 
 export const OWNER_PATTERN = /^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){0,38}$/;
 export const NAME_PATTERN = /^[a-z0-9][a-z0-9-]{0,63}$/;
@@ -54,6 +58,19 @@ export function isCopyleft(license) {
   return COPYLEFT_PREFIXES.some((prefix) => license.startsWith(prefix));
 }
 
+/** Canonical file text CI expects: 2-space JSON with a trailing newline. */
+export function formatEntry(entry) {
+  return `${JSON.stringify(entry, null, 2)}\n`;
+}
+
+/**
+ * Whether `raw` is the canonical text up to line endings. GitHub's web editor
+ * may drop the final newline or use CRLF; neither should fail a submission.
+ */
+export function isFormattedEntry(raw, entry) {
+  return `${raw.replace(/\r\n/g, '\n').trimEnd()}\n` === formatEntry(entry);
+}
+
 /** `extensions/alice/tool.json` → { owner: 'alice', name: 'tool', id: 'alice/tool' } or null. */
 export function parseEntryPath(relativePath) {
   const match = ENTRY_PATH_PATTERN.exec(relativePath);
@@ -63,8 +80,12 @@ export function parseEntryPath(relativePath) {
   return { owner, name, id: `${owner}/${name}` };
 }
 
-/** Returns a list of problems; empty means valid. */
-export function validateEntry(entry) {
+/**
+ * Returns a list of problems; empty means valid.
+ * @param {unknown} entry  parsed entry file
+ * @param {string} [id]    `<owner>/<name>` from the path, for the self-fork rule
+ */
+export function validateEntry(entry, id) {
   const problems = [];
   if (!entry || typeof entry !== 'object' || Array.isArray(entry)) {
     return ['entry must be a JSON object'];
@@ -83,7 +104,11 @@ export function validateEntry(entry) {
       }
     }
   }
-  if (typeof entry.repository !== 'string' || !REPOSITORY_PATTERN.test(entry.repository)) {
+  if (
+    typeof entry.repository !== 'string' ||
+    !REPOSITORY_PATTERN.test(entry.repository) ||
+    entry.repository.toLowerCase().endsWith('.git')
+  ) {
     problems.push('repository must be https://github.com/<owner>/<repo> without .git or trailing slash');
   }
   if (entry.subdir !== undefined) {
@@ -118,6 +143,7 @@ export function validateEntry(entry) {
       typeof fork.version === 'string' &&
       VERSION_PATTERN.test(fork.version);
     if (!valid) problems.push('forkOf must be { "id": "<owner>/<name>", "version": "<version>" }');
+    else if (id !== undefined && fork.id === id) problems.push('forkOf cannot name the entry itself');
   }
   if (!Array.isArray(entry.versions) || entry.versions.length === 0) {
     problems.push('versions must be a non-empty array, newest first');

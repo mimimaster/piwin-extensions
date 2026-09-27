@@ -1,4 +1,4 @@
-name: publish index
+name: publish site
 
 on:
   push:
@@ -35,10 +35,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Build index.json
-        run: node scripts/build-index.mjs . dist
-      - name: Publish schema next to the index
-        run: mkdir -p dist/schema && cp schema/entry.schema.json dist/schema/
+      - name: Build index.json and the static site
+        run: node scripts/build-site.mjs dist
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

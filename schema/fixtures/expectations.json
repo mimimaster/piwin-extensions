@@ -1,0 +1,14 @@
+{
+  "invalid/extensions/-bad/tool.json": "path",
+  "invalid/extensions/mallory/no-owners.json": "owners",
+  "invalid/extensions/mallory/bad-owner.json": "owner",
+  "invalid/extensions/mallory/gitlab.json": "repository",
+  "invalid/extensions/mallory/escape.json": "subdir",
+  "invalid/extensions/mallory/moving-tag.json": "40-hex",
+  "invalid/extensions/mallory/short-sha.json": "40-hex",
+  "invalid/extensions/mallory/bad-version.json": "version",
+  "invalid/extensions/mallory/self-fork.json": "itself",
+  "invalid-strict/extensions/mallory/unknown-key.json": "unknown key",
+  "invalid-strict/extensions/mallory/uppercase-owner.json": "lowercase",
+  "invalid-strict/extensions/mallory/dot-git.json": "repository"
+}

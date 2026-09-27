@@ -3,6 +3,14 @@ import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { parseEntryPath } from './entry.mjs';
 
+/**
+ * Files under extensions/ that are not entries: the placeholder and the
+ * documentation examples (never indexed, maintainer-edited only).
+ */
+export function isRegistryMetaFile(path) {
+  return path === 'extensions/.gitkeep' || path.startsWith('extensions/_examples/');
+}
+
 /** All files under `root` (POSIX-relative), skipping `.git`. */
 export async function listFiles(root) {
   const files = [];
@@ -27,8 +35,7 @@ export async function readEntries(root) {
   const entries = new Map();
   const strayFiles = [];
   for (const path of await listFiles(root)) {
-    if (!path.startsWith('extensions/')) continue;
-    if (path === 'extensions/README.md') continue;
+    if (!path.startsWith('extensions/') || isRegistryMetaFile(path)) continue;
     const parsedPath = parseEntryPath(path);
     if (!parsedPath) {
       strayFiles.push(path);

@@ -1,124 +1,80 @@
 # piwin 扩展仓库
 
-piwin 的社区扩展目录。这里不存代码：每个扩展只有一个条目文件，指向作者自己的
-GitHub 仓库里**固定 commit** 的源码。合并后 CI 生成 `index.json` 发布到 GitHub
-Pages，piwin 市场搜索和 `piwin extension install --registry` 都读它。
+piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文件，指向作者自己 GitHub 仓库里
+**固定 commit** 的源码。合并到 `main` 后，CI 生成 `index.json`，和网页前台一起部署到 GitHub Pages。
 
-- 索引：`https://mimimaster.github.io/piwin-extensions/index.json`
-- 条目 Schema：`schema/entry.schema.json`
-- 设计记录：piwin 仓库 `docs/adr/0077-github-extension-registry.md`
+- 网页：<https://mimimaster.github.io/piwin-extensions/>
+- 索引：<https://mimimaster.github.io/piwin-extensions/index.json>（piwin 市场搜索和
+  `piwin extension install --registry` 读这个）
+- 怎么提交：[CONTRIBUTING.md](CONTRIBUTING.md)
+- 设计记录：piwin 仓库 `docs/adr/0077-github-extension-registry.md`；接入说明：
+  `docs/guides/extension-registry.md`
 
-## 上架一个扩展（5 步）
+## 目录
 
-1. 把扩展源码推到你自己的**公开** GitHub 仓库（格式见下文「源码要求」）。
-2. 记下要发布的完整 commit SHA：`git rev-parse HEAD`（40 位，不能用 tag 或分支）。
-3. Fork 本仓库，新建 `extensions/<你的 GitHub 用户名>/<扩展名>.json`：
+| 路径 | 内容 |
+|---|---|
+| `extensions/<owner>/<name>.json` | 条目，一个扩展一个文件 |
+| `extensions/_examples/` | 示例条目，只作文档，不会进索引，PR 不能改 |
+| `schema/entry.schema.json` | 条目 JSON Schema（给编辑器用） |
+| `schema/fixtures/` | 合法 / 非法样例；piwin 客户端的解析器测试用同一份 |
+| `scripts/lib/entry.mjs` | 条目规则。CI、单文件检查和网页前台用的是**同一个文件** |
+| `scripts/validate-pr.mjs` | PR 检查（CI 用 `--github`，本地用 `--base/--head`） |
+| `scripts/validate-entry.mjs` | 检查单个条目，并拉取固定 commit 检查源码结构 |
+| `scripts/build-index.mjs` | 汇总条目生成 `index.json`，版本按新到旧排序 |
+| `scripts/build-site.mjs` | 组装 Pages：`site/` + `lib/entry.mjs` + `index.json` + schema |
+| `site/` | 纯静态前台：搜索、详情、提交扩展、发新版本 / 撤回 |
+| `.github/workflows/validate.yml` | `pull_request_target`，只检出 base，结果写 PR 评论 + check |
+| `.github/workflows/publish.yml` | push 到 `main`：测试 → 构建 → 部署 Pages |
 
-   ```json
-   {
-     "$schema": "../../schema/entry.schema.json",
-     "name": "Git Autopilot",
-     "description": "暂存改动并生成提交信息。",
-     "owners": ["alice"],
-     "repository": "https://github.com/alice/git-autopilot",
-     "subdir": "extension",
-     "license": "MIT",
-     "keywords": ["git", "commit"],
-     "versions": [
-       { "version": "1.0.0", "commit": "9f3c2e1d4b5a6978a1b2c3d4e5f60718293a4b5c" }
-     ]
-   }
+不依赖任何 npm 包，Node ≥ 20 即可：`npm test`、`npm run preview`。
+
+## 仓库主人需要在 GitHub 上手动完成的设置
+
+这些都需要仓库主人（@mimimaster）在 GitHub 网页上操作，脚本不会替你做：
+
+1. **建仓库并推送**：在 GitHub 新建**公开**仓库 `mimimaster/piwin-extensions`（不要勾选初始化文件），然后：
+
+   ```bash
+   git remote add origin git@github.com:mimimaster/piwin-extensions.git
+   git push -u origin main
    ```
 
-4. 运行 `npm run format`（CI 要求 2 空格 JSON + 结尾换行），提 PR。
-5. CI 通过后等维护者合并。合并几分钟后，piwin 里就能搜到。
+2. **开启 Pages**：Settings → Pages → Build and deployment → Source 选 **GitHub Actions**。
+   第一次 push 后 `publish site` 会部署，地址是 `https://mimimaster.github.io/piwin-extensions/`。
+3. **Actions 权限**：Settings → Actions → General
+   - Actions permissions：允许 GitHub 官方 actions（`actions/*`）即可；
+   - Workflow permissions：保持 **Read repository contents**（工作流里已按需声明
+     `pull-requests: write` / `issues: write` / `pages: write`）；
+   - Fork pull request workflows：建议选 **Require approval for first-time contributors**。
+     注意 `pull_request_target` 的工作流来自 `main` 本身，不会执行 PR 里的代码。
+4. **main 分支保护**（Settings → Rules → Rulesets，或 Branches → Add rule）：
+   - Require a pull request before merging，Require review from Code Owners（CODEOWNERS 是 @mimimaster）；
+   - Require status checks to pass：勾选 **`validate`**（`validate submission` 工作流的 job），
+     并勾选 Require branches to be up to date；
+   - Block force pushes，Restrict deletions。
+   - 你自己改 `scripts/` 或 `site/` 时 `validate` 会失败（提交 PR 只允许改 `extensions/**`），
+     用管理员身份绕过合并即可，或在规则里给自己开 bypass。
+5. **（可选）`github-pages` 环境**：Settings → Environments → github-pages → Deployment branches
+   只允许 `main`。
 
-`<扩展名>` 只能用小写字母、数字和 `-`。扩展 id 就是 `<用户名>/<扩展名>`，由文件路径决定。
-组织账号也可以：放在 `extensions/<组织名>/` 下，前提是你**公开**显示为该组织成员。
+## 合并建议
 
-## 条目字段
+- 新扩展：看一眼源码（CI 评论里有固定 commit 链接）再合并。
+- owner 发新版本 / 撤回：CI 全绿即可合并。
+- 改装版：对照 CI 评论里的原版和改装版链接。
 
-| 字段 | 必填 | 说明 |
-|---|---|---|
-| `name` | ✓ | 显示名，≤ 80 字 |
-| `description` | | 一句话用途，≤ 500 字 |
-| `owners` | ✓ | 允许修改此条目的 GitHub 用户名（小写）。新条目必须包含提 PR 的人 |
-| `repository` | ✓ | `https://github.com/<owner>/<repo>`，不带 `.git` |
-| `subdir` | | 扩展在仓库里的相对路径（目录或 `.ts` 文件）；缺省为仓库根目录 |
-| `license` | ✓ | SPDX 标识，如 `MIT`、`Apache-2.0`、`GPL-3.0-only` |
-| `keywords` | | 搜索关键词，≤ 20 个 |
-| `homepage` | | https 链接 |
-| `forkOf` | | 改装版必填：`{ "id": "<原作者>/<原扩展名>", "version": "<基于的版本>" }` |
-| `versions` | ✓ | **新版本在最上面**。每项 `{ version, commit, publishedAt?, yanked? }` |
+## 自建私有扩展仓库
 
-## 源码要求
+Fork 本仓库，按上面开启 Pages，然后在运行 piwin Host 的机器上设置：
 
-piwin 会拉取指定 commit，把源码原样放进不可变 revision，**不执行 npm install，也不跑任何脚本**。
-所以扩展必须是自包含的：
+```bash
+PIWIN_EXTENSION_REGISTRY_URL=https://<you>.github.io/<repo>/index.json
+```
 
-- 目录形式：目录里有 `index.ts`，默认导出 Pi 扩展工厂函数 `export default function (pi) { … }`。
-- 单文件形式：`subdir` 直接指向一个 `.ts` 文件。
-- `package.json`（如果有）**不能有 `dependencies`**。Pi 自己的包（`@earendil-works/pi-*`）
-  用 `peerDependencies` 或只做 `import type`；其它依赖请打包进源码。
-- 不能有 `preinstall` / `install` / `postinstall` / `prepare` 脚本。
-- 不能有符号链接或提交进来的 `node_modules`；总大小 ≤ 5 MB，文件数 ≤ 2000。
+网页前台会根据 `<you>.github.io/<repo>` 自动指向你自己的仓库。
 
-扩展能在 piwin 里用到哪些 Pi 能力（工具、hook、对话框、状态栏、面板、`/` 命令），
-见 piwin 仓库 `docs/guides/pi-extensions.md`。
+## 后续
 
-## 发新版本 / 撤回
-
-- **发新版本**：在 `versions` 数组**最前面**加一项新的 `{ version, commit }`，提 PR。
-  只有 `owners` 里的人能改自己的条目；这类 PR CI 全绿即可合并。
-- **已发布的版本不能改、不能删**：同一个 version 永远对应同一个 commit。
-- **撤回**：给那一版加 `"yanked": { "reason": "为什么" }`。撤回的版本在搜索里隐藏，piwin 拒绝安装；
-  撤回后不能恢复，请发新版本。
-
-## 改装别人的扩展
-
-1. Fork 原作者的源码仓库，改完推到你自己的仓库。
-2. 在**你自己的**命名空间下新建条目：`extensions/<你>/<扩展名>.json`，填 `forkOf`。
-3. 许可证规则：
-   - 原扩展的 license 必须是允许修改的开源许可证（MIT、Apache-2.0、BSD、ISC、MPL、GPL 系列等）。
-   - 原扩展是 copyleft（GPL / LGPL / AGPL / MPL）时，改装版必须沿用**同一个** license。
-4. 在 PR 描述里写清楚和原版的区别。piwin 里会显示「基于 X 改装」，并提示用户先对比源码。
-
-改装版和原版在 piwin 里装成两个独立扩展（`alice-git-autopilot` 与 `yorick-git-autopilot`），互不覆盖。
-
-## CI 做了什么
-
-`validate submission`（每个 PR）从**目标分支**运行 `scripts/validate-pr.mjs`，PR 里的内容只当数据读，
-PR 无法修改评判它的脚本。检查：
-
-- PR 只改了 `extensions/**`，文件名合法，JSON 已格式化；
-- 字段合法（`scripts/lib/entry.mjs`）；
-- 所有权：新条目在你自己的用户名/组织下，改已有条目的人在 `owners` 里；
-- 版本历史只追加：已发布的 version → commit 不变，新版本在最前；
-- 改装：`forkOf` 指向的条目和版本存在，许可证允许；
-- 源码：逐个拉取新 commit，检查 `index.ts`、依赖、安装脚本、符号链接、大小。
-
-通过 CI 表示结构没问题，**不等于安全审查**。扩展在 piwin 里以用户的系统权限运行，
-piwin 安装前会向用户展示作者、commit 和改装来源。
-
-`publish index`（合并到 main）重新校验全部条目，生成 `dist/index.json`，部署到 Pages。
-
-## 在 piwin 里使用
-
-- 桌面端：市场 → 搜索。来自本仓库的结果带「扩展仓库」标签，排在 npm / GitHub 结果前面。
-- 命令行：
-
-  ```bash
-  piwin extension install --registry alice/git-autopilot        # 最新未撤回版本
-  piwin extension install --registry alice/git-autopilot@1.0.0  # 指定版本
-  piwin extension enable alice-git-autopilot
-  ```
-
-- 自建私有扩展仓库：fork 本仓库并开启 Pages，然后在运行 piwin Host 的机器上设置
-  `PIWIN_EXTENSION_REGISTRY_URL=https://<you>.github.io/<repo>/index.json`。
-
-## 维护者
-
-- 首次启用：Settings → Pages → Source 选 **GitHub Actions**。
-- 建议给 `main` 开分支保护：要求 `validate submission` 通过，要求 1 个 review。
-- 新扩展人工看一眼源码再合并；owner 的版本更新 CI 全绿即可合并。
-- 本地自测：`npm test`；本地生成索引：`npm run build`。
+- **GitHub 登录后一键提交**：需要一个换取 OAuth token 的小服务（例如 Cloudflare Worker），
+  目前未实现，见 ADR 0077 §5。现在的网页提交用 GitHub 的新建文件页，不需要任何后端。

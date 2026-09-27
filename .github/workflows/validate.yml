@@ -1,34 +1,35 @@
 name: validate submission
 
+# pull_request_target runs with the base branch's workflow and scripts, so a
+# submission cannot edit the rules that judge it. The PR head is never checked
+# out: scripts/validate-pr.mjs reads the changed files through the API as data
+# and executes nothing from them.
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
+  pull-requests: write # sticky result comment
+  issues: write # PR comments are issue comments
+
+concurrency:
+  group: validate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      # The rules run from the base branch. The PR head is only read as data,
-      # so a submission cannot edit the script that judges it.
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.base.sha }}
-          path: base
-          persist-credentials: false
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
-          path: head
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Check entries, ownership and pinned sources
+      - name: Check entries, ownership, history, forks and pinned sources
         env:
-          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node base/scripts/validate-pr.mjs --base base --head head --author "$PR_AUTHOR"
+        run: node scripts/validate-pr.mjs --github

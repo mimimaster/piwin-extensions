@@ -5,15 +5,34 @@
   "description": "One file per extension at extensions/<owner>/<name>.json. The id <owner>/<name> comes from the path. scripts/lib/entry.mjs is the enforcing validator; this schema is for editors.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["name", "owners", "repository", "license", "versions"],
+  "required": [
+    "name",
+    "owners",
+    "repository",
+    "license",
+    "versions"
+  ],
   "properties": {
-    "$schema": { "type": "string", "description": "Optional; lets editors validate this file." },
-    "name": { "type": "string", "minLength": 1, "maxLength": 80 },
-    "description": { "type": "string", "maxLength": 500 },
+    "$schema": {
+      "type": "string",
+      "description": "Optional; lets editors validate this file."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500
+    },
     "owners": {
       "type": "array",
       "minItems": 1,
-      "items": { "type": "string", "pattern": "^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){0,38}$" },
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){0,38}$"
+      },
       "description": "Lowercase GitHub handles allowed to change this entry."
     },
     "repository": {
@@ -22,19 +41,44 @@
     },
     "subdir": {
       "type": "string",
-      "description": "Relative path to the extension directory (with index.ts) or .ts file inside the repository."
+      "description": "Relative path to the extension directory (with index.ts) or .ts file inside the repository.",
+      "pattern": "^(?!/)(?!.*//)(?!(?:.*/)?\\.{1,2}(?:/|$))[^\\\\]+(?<!/)$"
     },
-    "license": { "type": "string", "minLength": 1, "maxLength": 64, "description": "SPDX identifier." },
-    "keywords": { "type": "array", "maxItems": 20, "items": { "type": "string", "maxLength": 40 } },
-    "homepage": { "type": "string", "pattern": "^https://" },
+    "license": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "SPDX identifier."
+    },
+    "keywords": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "string",
+        "maxLength": 40
+      }
+    },
+    "homepage": {
+      "type": "string",
+      "pattern": "^https://"
+    },
     "forkOf": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "version"],
+      "required": [
+        "id",
+        "version"
+      ],
       "properties": {
-        "id": { "type": "string", "description": "<owner>/<name> of the original registry entry." },
-        "version": { "type": "string" }
-      }
+        "id": {
+          "type": "string",
+          "description": "<owner>/<name> of the original registry entry."
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "description": "Modified copy of another registry entry. Must not name this entry itself (checked by scripts/lib/entry.mjs; JSON Schema cannot express it)."
     },
     "versions": {
       "type": "array",
@@ -43,16 +87,35 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["version", "commit"],
+        "required": [
+          "version",
+          "commit"
+        ],
         "properties": {
-          "version": { "type": "string", "pattern": "^[0-9A-Za-z][0-9A-Za-z.+-]{0,63}$" },
-          "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
-          "publishedAt": { "type": "string", "format": "date-time" },
+          "version": {
+            "type": "string",
+            "pattern": "^[0-9A-Za-z][0-9A-Za-z.+-]{0,63}$"
+          },
+          "commit": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "yanked": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["reason"],
-            "properties": { "reason": { "type": "string", "minLength": 1 } }
+            "required": [
+              "reason"
+            ],
+            "properties": {
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         }
       }

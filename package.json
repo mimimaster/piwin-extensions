@@ -3,10 +3,14 @@
   "private": true,
   "type": "module",
   "description": "Community extension registry for piwin. Entries point at source pinned by commit.",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "node --test scripts/*.test.mjs",
     "format": "node scripts/format.mjs",
-    "build": "node scripts/build-index.mjs"
+    "validate": "node scripts/validate-entry.mjs",
+    "build": "node scripts/build-site.mjs dist",
+    "preview": "node scripts/build-site.mjs dist --index-root schema/fixtures/valid && python3 -m http.server 8803 --bind 127.0.0.1 --directory dist"
   }
 }
