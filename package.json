@@ -1,0 +1,12 @@
+{
+  "name": "piwin-extensions",
+  "private": true,
+  "type": "module",
+  "description": "Community extension registry for piwin. Entries point at source pinned by commit.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test scripts/*.test.mjs",
+    "format": "node scripts/format.mjs",
+    "build": "node scripts/build-index.mjs"
+  }
+}
