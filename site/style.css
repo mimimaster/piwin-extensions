@@ -1226,6 +1226,8 @@ select:disabled {
 
 .preview {
   display: grid;
+  /* Long JSON lines scroll inside the preview instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
 
