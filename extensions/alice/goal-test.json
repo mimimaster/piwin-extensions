@@ -1,0 +1,16 @@
+{
+  "name": "Goal loop (E2E test)",
+  "description": "End-to-end test entry: piwin bundled goal extension pinned to a commit. Not for merging.",
+  "owners": [
+    "mimimaster"
+  ],
+  "repository": "https://github.com/mimimaster/piwin",
+  "subdir": "packages/agent-host/bundled-extensions/goal.ts",
+  "license": "MIT",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "commit": "40f0605925a3525f7d68de3a70ce75a6ebde8eda"
+    }
+  ]
+}
