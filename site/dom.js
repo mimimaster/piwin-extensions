@@ -47,18 +47,28 @@ export async function copyText(text) {
 }
 
 /** A button that copies `text()` and briefly confirms. */
-export function copyButton(label, text) {
-  const button = h('button', { type: 'button', class: 'button secondary' }, label);
+export function copyButton(label, text, className = 'button secondary') {
+  const labelNode = h('span', {}, label);
+  const button = h('button', { type: 'button', class: className, 'aria-label': label }, labelNode);
   button.addEventListener('click', async () => {
     const copied = await copyText(typeof text === 'function' ? text() : text);
-    button.textContent = copied ? '已复制' : '复制失败，请手动选择';
+    labelNode.textContent = copied ? '已复制' : '复制失败';
+    button.classList.toggle('is-done', copied);
     setTimeout(() => {
-      button.textContent = label;
+      labelNode.textContent = label;
+      button.classList.remove('is-done');
     }, 1600);
   });
   return button;
 }
 
+/** One shell command with a prompt glyph and a copy button. */
 export function codeLine(text) {
-  return h('div', { class: 'code-line' }, h('code', {}, text), copyButton('复制', text));
+  return h(
+    'div',
+    { class: 'code-line' },
+    h('span', { class: 'prompt', 'aria-hidden': 'true' }, '$'),
+    h('code', {}, text),
+    copyButton('复制', text, 'copy-chip'),
+  );
 }

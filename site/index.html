@@ -4,27 +4,33 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="piwin 社区扩展：搜索、查看固定 commit、提交你自己的 Pi 扩展。" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'"
+      content="default-src 'self'; img-src 'self' data: https://avatars.githubusercontent.com; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'"
     />
     <title>piwin 扩展仓库</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c8452c'/%3E%3Ctext x='16' y='22.5' font-size='18' text-anchor='middle' fill='%23fff'%3E%E7%A0%9A%3C/text%3E%3C/svg%3E" />
     <link rel="stylesheet" href="./style.css" />
     <script type="module" src="./app.js"></script>
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="#/">piwin 扩展</a>
-      <nav>
-        <a data-nav href="#/">浏览</a>
-        <a data-nav href="#/submit">提交扩展</a>
-        <span data-repo-link></span>
-        <a href="./index.json">index.json</a>
-      </nav>
+      <div class="topbar-inner">
+        <a class="brand" href="#/"><span class="seal" aria-hidden="true">砚</span><span>piwin <em>扩展</em></span></a>
+        <nav aria-label="主导航">
+          <a data-nav href="#/">浏览</a>
+          <span data-repo-link class="nav-link"></span>
+          <a data-nav href="#/submit" class="button small">提交扩展</a>
+        </nav>
+      </div>
     </header>
-    <main><p class="muted">加载中…</p></main>
-    <footer class="muted">
-      条目通过 CI 结构检查并经维护者合并，但不等于安全审查。扩展启用后以你的系统权限运行，安装前请看源码。
+    <main><p class="loading">加载中…</p></main>
+    <footer>
+      <div class="footer-inner">
+        <p>条目通过 CI 结构检查并经维护者合并，但不等于安全审查。扩展启用后以你的系统权限运行，安装前请看源码。</p>
+        <p><a href="./index.json">index.json</a> · <a href="./schema/entry.schema.json">条目 Schema</a> · <span data-repo-link></span></p>
+      </div>
     </footer>
   </body>
 </html>

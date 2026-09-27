@@ -1,7 +1,10 @@
 // Hash router: #/  ·  #/ext/<owner>/<name>  ·  #/submit
 import { registryRepo } from './config.js';
 import { externalLink, h } from './dom.js';
-import { detailView, listView, submitView } from './views.js';
+import { icon } from './ui.js';
+import { detailView } from './view-detail.js';
+import { listView } from './view-list.js';
+import { submitView } from './view-submit.js';
 
 const main = document.querySelector('main');
 let extensions = [];
@@ -36,16 +39,17 @@ function render() {
   }
   main.replaceChildren(view);
   for (const link of document.querySelectorAll('[data-nav]')) {
-    link.toggleAttribute('aria-current', link.getAttribute('href') === `#/${route.split('/')[0]}`);
+    const section = route === 'submit' ? '#/submit' : '#/';
+    link.toggleAttribute('aria-current', link.getAttribute('href') === section);
   }
   window.scrollTo(0, 0);
 }
 
 function renderChrome() {
   const repo = registryRepo();
-  document.querySelector('[data-repo-link]').replaceWith(
-    externalLink(`https://github.com/${repo}`, 'GitHub 仓库'),
-  );
+  for (const slot of document.querySelectorAll('[data-repo-link]')) {
+    slot.replaceWith(externalLink(`https://github.com/${repo}`, [icon('github', 16), ' GitHub'], slot.className));
+  }
 }
 
 renderChrome();
@@ -55,6 +59,9 @@ try {
   render();
 } catch (error) {
   main.replaceChildren(
-    h('section', {}, h('h1', {}, '索引加载失败'), h('p', { class: 'problems' }, String(error.message ?? error))),
+    h('div', { class: 'empty' },
+      h('h1', {}, '索引加载失败'),
+      h('p', { class: 'callout danger' }, String(error.message ?? error)),
+    ),
   );
 }
