@@ -24,6 +24,7 @@ before(async () => {
     zip: await load('zip-reader.js'),
     inspect: await load('upload-inspect.js'),
     publish: await load('publish-flow.js'),
+    github: await load('github-write.js'),
     entry: await load('lib/entry.mjs'),
   };
 });
@@ -87,6 +88,38 @@ describe('upload intake', () => {
 });
 
 describe('publishing against a fake GitHub', () => {
+  it('lists owned public repositories and publishes an existing commit without changing source', async () => {
+    const github = fakeGitHub({ login: 'Yorick', repos: {
+      'Yorick/command-code': { files: { 'index.ts': INDEX_TS, 'package.json': '{"version":"1.0.0"}' } },
+    } });
+    const repos = await site.github.createGitHubWriter('t').listRepositories();
+    assert.ok(repos.some((repo) => repo.full_name === 'Yorick/command-code'));
+    const commit = github.headOf('Yorick/command-code');
+    const steps = [];
+    const result = await site.publish.publishExistingExtension({
+      token: 't', repository: 'https://github.com/Yorick/command-code', commit, subdir: '',
+      meta: { slug: 'command-code', name: 'Command Code', description: 'Code commands', version: '1.0.0', license: 'MIT', keywords: [], homepage: '' },
+      registry: 'mimimaster/piwin-extensions', extensions: [], onStep: (step) => steps.push(step),
+    });
+    assert.deepEqual(steps, ['account', 'repo', 'fork', 'entry', 'pr']);
+    assert.equal(result.commit, commit);
+    assert.equal(github.headOf('Yorick/command-code'), commit);
+    assert.ok(!github.calls.some((call) => call.startsWith('POST /repos/Yorick/command-code')));
+    const entry = JSON.parse(github.contentOf('Yorick/piwin-extensions', 'extensions/yorick/command-code.json'));
+    assert.deepEqual(site.entry.validateEntry(entry, 'yorick/command-code'), []);
+    assert.equal(entry.versions[0].commit, commit);
+  });
+
+  it('rejects a repository that moved after selection', async () => {
+    const github = fakeGitHub({ login: 'Yorick', repos: { 'Yorick/hello': { files: { 'index.ts': INDEX_TS } } } });
+    await assert.rejects(site.publish.publishExistingExtension({
+      token: 't', repository: 'https://github.com/Yorick/hello', commit: '0'.repeat(40), subdir: '',
+      meta: { slug: 'hello', name: 'Hello', description: '', version: '1.0.0', license: 'MIT', keywords: [], homepage: '' },
+      registry: 'mimimaster/piwin-extensions', extensions: [], onStep: () => undefined,
+    }), /新提交/);
+    assert.equal(github.pulls.length, 0);
+  });
+
   it('creates the source repo, commits the upload, forks the registry and opens the PR', async () => {
     const github = fakeGitHub({ login: 'Yorick' });
     const steps = [];
@@ -208,7 +241,11 @@ function fakeGitHub({ login, repos = {} }) {
     state.trees.set(tree, Object.entries(files).map(([path, content]) => ({ path, mode: '100644', type: 'blob', sha: nextSha(), content })));
     const commit = nextSha();
     state.commits.set(commit, { tree });
-    state.repos.set(fullName.toLowerCase(), { full_name: fullName, default_branch: 'main', topics, permissions: { push: fullName.split('/')[0].toLowerCase() === login.toLowerCase() } });
+    state.repos.set(fullName.toLowerCase(), {
+      full_name: fullName, html_url: `https://github.com/${fullName}`, default_branch: 'main', topics,
+      owner: { login: fullName.split('/')[0] }, private: false, archived: false,
+      permissions: { push: fullName.split('/')[0].toLowerCase() === login.toLowerCase() },
+    });
     state.refs.set(`${fullName.toLowerCase()}#main`, commit);
     state.topics.set(fullName, topics);
   };
@@ -234,6 +271,9 @@ function fakeGitHub({ login, repos = {} }) {
     const notFound = () => json({ message: 'Not Found' }, 404);
     let match;
     if (path === '/user') return json({ login });
+    if (method === 'GET' && path === '/user/repos') {
+      return json([...state.repos.values()].filter((repo) => repo.owner.login.toLowerCase() === login.toLowerCase()));
+    }
     if (method === 'POST' && path === '/user/repos') {
       addRepo(`${login}/${body.name}`, { files: { 'README.md': 'auto' } });
       return json(state.repos.get(`${login}/${body.name}`.toLowerCase()), 201);
@@ -298,6 +338,7 @@ function fakeGitHub({ login, repos = {} }) {
 
   return {
     calls: state.calls,
+    headOf: (repo) => state.refs.get(`${repo.toLowerCase()}#main`),
     pulls: state.pulls,
     topics: state.topics,
     get lastCommit() {

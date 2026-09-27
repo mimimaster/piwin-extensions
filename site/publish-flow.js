@@ -6,6 +6,7 @@ import { formatEntry, validateEntry } from './lib/entry.mjs';
 import { canonicalEntry, entryFromIndex } from './entry-builder.js';
 import { decodeText } from './upload-files.js';
 import { createGitHubWriter, textToBase64, toBase64 } from './github-write.js';
+import { parseRepositoryInput } from './github-api.js';
 
 export const PUBLISH_STEPS = [
   ['account', '确认 GitHub 账号'],
@@ -73,6 +74,59 @@ export async function publishNewExtension(input) {
     text: formatEntry(entry),
     title: `Add ${id} ${input.meta.version}`,
     body: `${input.meta.description || input.meta.name}\n\n- 源码：${repository}/commit/${commit}\n${input.forkOf ? `- 改装自：${input.forkOf.id} ${input.forkOf.version}\n` : ''}\n由扩展仓库网页一键发布。`,
+    onStep: input.onStep,
+    result: { id, repository, commit },
+  });
+}
+
+/** Publish a pinned commit from an existing public repository without changing its source. */
+export async function publishExistingExtension(input) {
+  const github = createGitHubWriter(input.token);
+  input.onStep('account');
+  const login = (await github.user()).login;
+  const owner = login.toLowerCase();
+  const parsed = parseRepositoryInput(input.repository);
+  if (!parsed || parsed.owner.toLowerCase() !== owner) {
+    throw new Error('只能选择自己账号下的 GitHub 仓库。');
+  }
+  const repoName = parsed.repo;
+  const repository = `https://github.com/${login}/${repoName}`;
+  const id = `${owner}/${input.meta.slug}`;
+  if (input.extensions.some((entry) => entry.id === id)) {
+    throw new Error(`${id} 已经在仓库里了。要发新版本，请到它的详情页上传。`);
+  }
+  input.onStep('repo', `${login}/${repoName}`);
+  const repo = await github.getRepo(login, repoName);
+  if (!repo || repo.private || repo.archived || repo.disabled || repo.owner?.login?.toLowerCase() !== owner) {
+    throw new Error('只能选择自己账号下的公开、可用仓库。');
+  }
+  if (!repo.permissions?.push) throw new Error('你对这个仓库没有写权限。');
+  if (!/^[0-9a-f]{40}$/i.test(input.commit)) throw new Error('源码 commit 无效，请重新选择仓库。');
+  const commit = input.commit.toLowerCase();
+  if (await github.headSha(login, repoName, repo.default_branch) !== commit) {
+    throw new Error('仓库默认分支已有新提交，请重新选择仓库并检查源码。');
+  }
+  const entry = canonicalEntry({
+    name: input.meta.name.trim(),
+    description: input.meta.description.trim(),
+    owners: [owner],
+    repository,
+    subdir: input.subdir,
+    license: input.meta.license.trim(),
+    keywords: input.meta.keywords,
+    homepage: input.meta.homepage,
+    forkOf: input.forkOf,
+    versions: [{ version: input.meta.version.trim(), commit, publishedAt: nowIso() }],
+  });
+  const problems = validateEntry(entry, id);
+  if (problems.length > 0) throw new Error(`条目不合规：${problems.join('；')}`);
+  return openRegistryPull(github, {
+    login,
+    registry: input.registry,
+    path: `extensions/${id}.json`,
+    text: formatEntry(entry),
+    title: `Add ${id} ${input.meta.version}`,
+    body: `${input.meta.description || input.meta.name}\n\n- 源码：${repository}/commit/${commit}\n\n由扩展仓库网页选择现有 GitHub 仓库发布。`,
     onStep: input.onStep,
     result: { id, repository, commit },
   });

@@ -11,15 +11,18 @@ import { dropzone } from './upload-dropzone.js';
 import { inspectUpload } from './upload-inspect.js';
 import { icon } from './ui.js';
 import { accountBar, progressList, resultCard } from './view-publish-parts.js';
+import { repositoryPicker } from './view-repository-picker.js';
 
 const LICENSES = ['MIT', 'Apache-2.0', 'BSD-3-Clause', 'ISC', 'MPL-2.0', 'GPL-3.0-only', 'LGPL-3.0-only', 'AGPL-3.0-only', 'Unlicense'];
 
 export function uploadView(extensions) {
   let login = null;
   let upload = null;
+  const picker = repositoryPicker(extensions);
   const stage = h('div', { class: 'upload-stage' });
   const bar = accountBar((value) => {
     login = value;
+    picker.setLogin(value);
     if (upload) renderReview();
   });
 
@@ -170,16 +173,33 @@ export function uploadView(extensions) {
     refresh();
   }
 
+  const local = h('div', {}, zone, stage);
+  const tabs = h('div', { class: 'publish-tabs' });
+  function mode(which) {
+    picker.element.hidden = which !== 'repository';
+    local.hidden = which !== 'upload';
+    for (const button of tabs.children) {
+      const active = button.dataset.mode === which;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', String(active));
+    }
+  }
+  tabs.replaceChildren(
+    h('button', { type: 'button', 'data-mode': 'repository', onClick: () => mode('repository') }, '选择 GitHub 仓库'),
+    h('button', { type: 'button', 'data-mode': 'upload', onClick: () => mode('upload') }, '上传本地文件'),
+  );
+  mode('repository');
   return h('div', { class: 'upload' },
     h('header', { class: 'page-head' },
       h('p', { class: 'eyebrow' }, '发布扩展'),
-      h('h1', {}, '拖进来，一键发布'),
-      h('p', { class: 'hero-lead' }, '登录 GitHub，把扩展文件夹拖进来。页面会在你的账号下建一个仓库放源码，然后替你向扩展仓库开 PR。不用装 git，也不用填表。'),
+      h('h1', {}, '从 GitHub 或本地发布扩展'),
+      h('p', { class: 'hero-lead' }, '登录 GitHub，选已有的公开仓库，或上传本地扩展文件。检查通过后，页面会替你向扩展市场开 PR。'),
     ),
     bar,
-    zone,
-    stage,
-    h('p', { class: 'fine alt-route' }, '源码已经在 GitHub 上、要发到组织名下，或者不想授权？用 ', h('a', { href: '#/submit/manual' }, '手动填写'), '。'),
+    tabs,
+    picker.element,
+    local,
+    h('p', { class: 'fine alt-route' }, '要发到组织名下，或者不想授权？用 ', h('a', { href: '#/submit/manual' }, '手动填写'), '。'),
     h('p', { class: 'fine alt-route' }, '还没写扩展，或者要把 Pi 终端（TUI）扩展改造成 piwin 可用？看 ',
       h('a', { href: 'https://docs.piwinwin.com/docs/extension-development', target: '_blank', rel: 'noopener noreferrer' }, 'Pi 扩展开发与 piwin 适配指南'), '。'),
   );

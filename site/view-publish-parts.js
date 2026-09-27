@@ -43,7 +43,7 @@ export function accountBar(onChange) {
           h('button', { type: 'button', class: 'button', onClick: () => signIn() }, icon('github', 16), '用 GitHub 登录'),
           h('details', { class: 'why' },
             h('summary', {}, '为什么需要 public_repo 权限？'),
-            h('p', {}, '一键发布会以你的身份做三件事：在你的账号下创建放源码的公开仓库并推送文件、fork 扩展仓库、以你的名义开 PR。GitHub 能覆盖这三件事的最小 OAuth 权限就是 public_repo（可以写你的公开仓库，读不到私有仓库）。'),
+            h('p', {}, '一键发布可以选择你已有的公开仓库，也可以上传文件新建仓库；随后会 fork 扩展仓库并以你的名义开 PR。GitHub 的 public_repo 权限可写你的公开仓库，读不到私有仓库。'),
             h('p', {}, 'token 只保存在这个浏览器标签页里（sessionStorage），关掉标签页就没了；我们的服务器不保存、不记录。随时可以在 ',
               externalLink('https://github.com/settings/applications', 'GitHub → Settings → Applications'), ' 撤销授权。'),
           ),
@@ -67,10 +67,10 @@ export function accountBar(onChange) {
 }
 
 /** Live step list; returns { element, onStep, fail, done }. */
-export function progressList() {
+export function progressList({ existing = false } = {}) {
   const items = new Map();
   const element = h('ol', { class: 'progress' },
-    PUBLISH_STEPS.map(([key, label]) => {
+    PUBLISH_STEPS.filter(([key]) => !existing || key !== 'push').map(([key, label]) => {
       const detail = h('span', { class: 'fine' });
       const item = h('li', { class: 'progress-item is-waiting' }, h('span', { class: 'progress-dot' }), h('div', {}, h('strong', {}, label), detail));
       items.set(key, { item, detail });
