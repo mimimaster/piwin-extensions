@@ -27,6 +27,17 @@ export async function checkPullRequest(input) {
   const headEntries = new Map(input.baseEntries);
   const changedIds = new Set();
 
+  const hasExtensionChanges = input.changes.some((change) => change.path.startsWith('extensions/'));
+  if (!hasExtensionChanges) {
+    return {
+      problems: [],
+      checkedIds: [],
+      versionsToCheck: [],
+      forkLinks: [],
+      isNonSubmission: true,
+    };
+  }
+
   for (const change of input.changes) {
     if (!change.path.startsWith('extensions/')) {
       problems.push(`${change.path}: only extensions/<owner>/<name>.json may change in a submission PR`);

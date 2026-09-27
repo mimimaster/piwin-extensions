@@ -3,7 +3,7 @@
 这个仓库只存**条目**：每个扩展一个 JSON 文件，指向你自己仓库里某个固定 commit 的源码。
 代码留在你的仓库，这里不收代码。
 
-- 网页：<https://mimimaster.github.io/piwin-extensions/>（浏览、提交、发新版本）
+- 网页：<https://extension.piwinwin.com/>（浏览、提交、发新版本）
 - 条目格式：[`schema/entry.schema.json`](schema/entry.schema.json)，示例：
   [`extensions/_examples/alice/hello-piwin.json`](extensions/_examples/alice/hello-piwin.json)
 - 设计记录：piwin 仓库 `docs/adr/0077-github-extension-registry.md`

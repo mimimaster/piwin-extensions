@@ -3,8 +3,8 @@
 piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文件，指向作者自己 GitHub 仓库里
 **固定 commit** 的源码。合并到 `main` 后，CI 生成 `index.json`，和网页前台一起部署到 GitHub Pages。
 
-- 网页：<https://mimimaster.github.io/piwin-extensions/>
-- 索引：<https://mimimaster.github.io/piwin-extensions/index.json>（piwin 桌面端扩展市场读取；CLI 暂不使用）
+- 网页：<https://extension.piwinwin.com/>
+- 索引：<https://extension.piwinwin.com/index.json>（piwin 桌面端扩展市场读取；CLI 暂不使用）
 - 怎么提交：[CONTRIBUTING.md](CONTRIBUTING.md)
 - 怎么写 / 改造扩展：[Pi 扩展开发与 piwin 适配指南](https://docs.piwinwin.com/docs/extension-development)
 - 设计记录：piwin 仓库 `docs/adr/0077-github-extension-registry.md`；接入说明：
@@ -35,16 +35,15 @@ piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文�
 
 以下设置已经在 `mimimaster/piwin-extensions` 上生效。自建 fork 时照着配：
 
-1. **Pages**：Settings → Pages → Source = **GitHub Actions**，地址 `https://mimimaster.github.io/piwin-extensions/`。
+1. **Pages**：Settings → Pages → Custom domain = `extension.piwinwin.com`（默认 Pages 地址 `https://mimimaster.github.io/piwin-extensions/` 亦可用）。
 2. **Actions**（Settings → Actions → General）：
    - 只允许 GitHub 官方 actions（`actions/*`）；
    - 工作流 token 默认只读（工作流里按需声明 `pull-requests: write` / `issues: write` / `pages: write`）；
    - 外部贡献者第一次提交需要批准后才运行工作流。`pull_request_target` 的工作流来自 `main` 本身，不执行 PR 里的代码。
 3. **main 规则集 `protect main`**（Settings → Rules → Rulesets）：
    - 合并必须走 PR，需要 1 个批准，且必须是 Code Owner（CODEOWNERS = @mimimaster）；新提交会让旧的批准失效；
-   - 必须通过 **`validate`** 检查（`validate submission` 工作流）；不要求分支与 main 保持同步，因为条目是互不相干的独立文件；
+   - 必须通过 **`validate`** 检查（`validate submission` 工作流；条目 PR 校验规范与 commit，维护类 PR 自动跳过条目校验并通过）；
    - 禁止强推和删除分支；
-   - 仓库管理员可以绕过：你改 `scripts/`、`site/` 时 `validate` 会失败（提交型 PR 只允许改 `extensions/**`），直接绕过合并即可。
 
 ## 一键发布：GitHub 登录的配置
 
@@ -56,8 +55,8 @@ piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文�
 
 1. **创建 OAuth App**：GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
    - Application name：`piwin 扩展仓库`
-   - Homepage URL：`https://mimimaster.github.io/piwin-extensions/`
-   - Authorization callback URL：`https://mimimaster.github.io/piwin-extensions/`
+   - Homepage URL：`https://extension.piwinwin.com/`（或 `https://mimimaster.github.io/piwin-extensions/`）
+   - Authorization callback URL：`https://extension.piwinwin.com/`（或 `https://mimimaster.github.io/piwin-extensions/`）
    - 不勾选 Enable Device Flow
    - 创建后记下 **Client ID**；点 Generate a new client secret，**Client Secret 只自己保存**。
 2. **部署 Worker**（需要 Cloudflare 账号，免费版即可）：
@@ -74,7 +73,7 @@ piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文�
    填 Worker 地址（不带结尾 `/`），推到 main，Pages 自动重新部署。
 
 Worker 只做一件事：收到网页发来的授权码，带上 secret 向 GitHub 换 token 再原样返回；
-只允许 `https://mimimaster.github.io` 跨域调用，不存储、不记录（`observability` 已关闭）。
+允许 `https://extension.piwinwin.com` 与 `https://mimimaster.github.io` 跨域调用，不存储、不记录（`observability` 已关闭）。
 token 只保存在用户浏览器标签页的 sessionStorage 里。
 
 ## 合并建议

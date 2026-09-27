@@ -2,8 +2,19 @@
 
 export const REPORT_MARKER = '<!-- piwin-extensions:validate -->';
 
-export function renderReport({ problems, checkedIds, versionsToCheck, forkLinks }) {
+export function renderReport({ problems, checkedIds, versionsToCheck, forkLinks, isNonSubmission }) {
   const lines = [REPORT_MARKER];
+  if (isNonSubmission) {
+    lines.push(
+      '### ✅ 仓库维护变更检查通过 / Maintenance PR check passed',
+      '',
+      '此 PR 未修改 `extensions/` 目录下的条目，已跳过条目规范与源码 commit 校验。',
+      'This PR does not modify any extension entries under `extensions/`. Entry and commit validation skipped.',
+      '',
+      '<sub>仓库维护类变更需由维护者审查合并。Maintenance PRs are reviewed and merged by repository maintainers.</sub>',
+    );
+    return `${lines.join('\n')}\n`;
+  }
   if (problems.length === 0) {
     lines.push('### ✅ 条目检查通过 / Entry check passed', '');
   } else {

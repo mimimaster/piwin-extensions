@@ -1,5 +1,5 @@
 <!-- 一个 PR 只改一个条目：extensions/<GitHub 用户名或组织>/<扩展名>.json
-     最省事的方式：在 https://mimimaster.github.io/piwin-extensions/#/submit 填表生成。 -->
+     最省事的方式：在 https://extension.piwinwin.com/#/submit 填表生成。 -->
 
 ## 扩展
 

@@ -231,6 +231,21 @@ describe('pull request rules', () => {
       assert.deepEqual(result.problems, []);
     }
   });
+
+  it('allows PRs that only touch repository files (site, docs, scripts) without extensions', async () => {
+    const result = await prCheck(
+      {},
+      {
+        'README.md': '# updated',
+        'site/index.html': '<html></html>',
+      },
+      'alice',
+    );
+    assert.deepEqual(result.problems, []);
+    assert.equal(result.isNonSubmission, true);
+    const report = renderReport(result);
+    assert.ok(report.includes('Maintenance PR check passed'));
+  });
 });
 
 describe('source checks', () => {
