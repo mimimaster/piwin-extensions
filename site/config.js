@@ -20,9 +20,9 @@ export function registryRepo(location = window.location) {
  * GitHub sign-in for one-click publishing (ADR 0077 §5). Empty values keep
  * sign-in off and the site falls back to the new-file link flow.
  */
-export const OAUTH_CLIENT_ID = '';
+export const OAUTH_CLIENT_ID = 'Ov23likdELi0Lkra7z00';
 /** Cloudflare Worker that exchanges the OAuth code (worker/). */
-export const AUTH_WORKER_URL = '';
+export const AUTH_WORKER_URL = 'https://piwin-extensions-auth.jiale18219.workers.dev';
 /** Create the author's repository, fork the registry, open the PR. */
 export const OAUTH_SCOPE = 'public_repo';
 
