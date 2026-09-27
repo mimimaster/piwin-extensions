@@ -268,7 +268,7 @@ function withGeneratedFiles(files, meta, login) {
   if (!has(/^README(\.[a-z]+)?$/i)) {
     extra.push({
       path: 'README.md',
-      bytes: encode(`# ${meta.name}\n\n${meta.description}\n\nA Pi extension for piwin. Install:\n\n\`\`\`bash\npiwin extension install --registry ${login.toLowerCase()}/${meta.slug}\n\`\`\`\n`),
+      bytes: encode(`# ${meta.name}\n\n${meta.description}\n\n在 piwin 桌面端「扩展市场」搜索此扩展并点击安装。CLI 暂不使用。\n`),
     });
   }
   if (meta.license === 'MIT' && !has(/^LICEN[CS]E(\.[a-z]+)?$/i)) {
