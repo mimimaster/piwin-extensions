@@ -29,34 +29,20 @@ piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文�
 
 不依赖任何 npm 包，Node ≥ 20 即可：`npm test`、`npm run preview`。
 
-## 仓库主人需要在 GitHub 上手动完成的设置
+## 仓库设置（2026-09-27 已用 gh 配好）
 
-这些都需要仓库主人（@mimimaster）在 GitHub 网页上操作，脚本不会替你做：
+以下设置已经在 `mimimaster/piwin-extensions` 上生效。自建 fork 时照着配：
 
-1. **建仓库并推送**：在 GitHub 新建**公开**仓库 `mimimaster/piwin-extensions`（不要勾选初始化文件），然后：
-
-   ```bash
-   git remote add origin git@github.com:mimimaster/piwin-extensions.git
-   git push -u origin main
-   ```
-
-2. **开启 Pages**：Settings → Pages → Build and deployment → Source 选 **GitHub Actions**。
-   第一次 push 后 `publish site` 会部署，地址是 `https://mimimaster.github.io/piwin-extensions/`。
-3. **Actions 权限**：Settings → Actions → General
-   - Actions permissions：允许 GitHub 官方 actions（`actions/*`）即可；
-   - Workflow permissions：保持 **Read repository contents**（工作流里已按需声明
-     `pull-requests: write` / `issues: write` / `pages: write`）；
-   - Fork pull request workflows：建议选 **Require approval for first-time contributors**。
-     注意 `pull_request_target` 的工作流来自 `main` 本身，不会执行 PR 里的代码。
-4. **main 分支保护**（Settings → Rules → Rulesets，或 Branches → Add rule）：
-   - Require a pull request before merging，Require review from Code Owners（CODEOWNERS 是 @mimimaster）；
-   - Require status checks to pass：勾选 **`validate`**（`validate submission` 工作流的 job），
-     并勾选 Require branches to be up to date；
-   - Block force pushes，Restrict deletions。
-   - 你自己改 `scripts/` 或 `site/` 时 `validate` 会失败（提交 PR 只允许改 `extensions/**`），
-     用管理员身份绕过合并即可，或在规则里给自己开 bypass。
-5. **（可选）`github-pages` 环境**：Settings → Environments → github-pages → Deployment branches
-   只允许 `main`。
+1. **Pages**：Settings → Pages → Source = **GitHub Actions**，地址 `https://mimimaster.github.io/piwin-extensions/`。
+2. **Actions**（Settings → Actions → General）：
+   - 只允许 GitHub 官方 actions（`actions/*`）；
+   - 工作流 token 默认只读（工作流里按需声明 `pull-requests: write` / `issues: write` / `pages: write`）；
+   - 外部贡献者第一次提交需要批准后才运行工作流。`pull_request_target` 的工作流来自 `main` 本身，不执行 PR 里的代码。
+3. **main 规则集 `protect main`**（Settings → Rules → Rulesets）：
+   - 合并必须走 PR，需要 1 个批准，且必须是 Code Owner（CODEOWNERS = @mimimaster）；新提交会让旧的批准失效；
+   - 必须通过 **`validate`** 检查（`validate submission` 工作流）；不要求分支与 main 保持同步，因为条目是互不相干的独立文件；
+   - 禁止强推和删除分支；
+   - 仓库管理员可以绕过：你改 `scripts/`、`site/` 时 `validate` 会失败（提交型 PR 只允许改 `extensions/**`），直接绕过合并即可。
 
 ## 合并建议
 
