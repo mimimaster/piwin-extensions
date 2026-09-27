@@ -180,6 +180,8 @@ export function uploadView(extensions) {
     zone,
     stage,
     h('p', { class: 'fine alt-route' }, '源码已经在 GitHub 上、要发到组织名下，或者不想授权？用 ', h('a', { href: '#/submit/manual' }, '手动填写'), '。'),
+    h('p', { class: 'fine alt-route' }, '还没写扩展，或者要把 Pi 终端（TUI）扩展改造成 piwin 可用？看 ',
+      h('a', { href: 'https://docs.piwinwin.com/docs/extension-development', target: '_blank', rel: 'noopener noreferrer' }, 'Pi 扩展开发与 piwin 适配指南'), '。'),
   );
 }
 

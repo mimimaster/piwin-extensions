@@ -20,8 +20,8 @@ piwin 安装时只拉取你指定的 commit，把源码原样放进不可变目�
 - 不能有符号链接和 `node_modules`；总大小 ≤ 5 MB，文件数 ≤ 2000。
 - 手动填写时：仓库必须公开，commit 必须已经推送。一键发布会替你建仓库、推送，不需要这一步。
 
-扩展在 piwin 里能用哪些 Pi 能力（工具、hook、对话框、状态栏、文本面板、`/` 命令），
-见 piwin 仓库 `docs/guides/pi-extensions.md`。
+扩展在 piwin 里能用哪些 Pi 能力、怎么把依赖 Pi 终端界面（TUI）的扩展改造过来、怎么打包和本地调试，
+见 **[Pi 扩展开发与 piwin 适配指南](https://docs.piwinwin.com/docs/extension-development)**。
 
 ## 2. 发布新扩展
 

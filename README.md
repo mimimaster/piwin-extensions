@@ -7,6 +7,7 @@ piwin 的社区扩展目录。这里不存代码：每个扩展一个条目文�
 - 索引：<https://mimimaster.github.io/piwin-extensions/index.json>（piwin 市场搜索和
   `piwin extension install --registry` 读这个）
 - 怎么提交：[CONTRIBUTING.md](CONTRIBUTING.md)
+- 怎么写 / 改造扩展：[Pi 扩展开发与 piwin 适配指南](https://docs.piwinwin.com/docs/extension-development)
 - 设计记录：piwin 仓库 `docs/adr/0077-github-extension-registry.md`；接入说明：
   `docs/guides/extension-registry.md`
 
