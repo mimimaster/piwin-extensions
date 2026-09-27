@@ -16,6 +16,10 @@
   "homepage": "https://github.com/mimimaster/piwin-commandcode-provider/tree/main/piwin",
   "versions": [
     {
+      "version": "0.7.1-piwin.2",
+      "commit": "5cb551d45c55767eb2156828adfa7a3465b839be"
+    },
+    {
       "version": "0.7.1-piwin.1",
       "commit": "8ff038e7cb425d2210abfeebef9bfc2f6e6e66ad"
     }
