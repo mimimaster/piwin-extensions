@@ -17,6 +17,10 @@
   "homepage": "https://github.com/mimimaster/piwin-kiro-provider/tree/main/piwin",
   "versions": [
     {
+      "version": "0.12.1-piwin.3",
+      "commit": "7ddab8a7fc393ee94fee3edd3a247728a7b5851a"
+    },
+    {
       "version": "0.12.1-piwin.2",
       "commit": "7edb037f6213af14cab096b394f35c031ece3d12"
     },
