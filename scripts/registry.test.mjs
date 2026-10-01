@@ -264,57 +264,6 @@ describe('source checks', () => {
     assert.ok(problems.some((problem) => problem.includes('symbolic link')));
   });
 
-  it('accepts a backend extension without a Pi factory and rejects a bad declaration', async () => {
-    const declaration = {
-      schemaVersion: 1,
-      id: 'grok',
-      name: 'Grok Build',
-      version: '1.0.0',
-      minHostVersion: '0.0.0',
-      protocol: 'piwin-agent-stdio',
-      protocolVersion: 1,
-      minHostProtocolVersion: 1,
-      platforms: ['darwin'],
-      verifiedCliVersions: ['1.0.0'],
-      helpUrl: 'https://grok.com',
-      artifact: {
-        format: 'node-esm',
-        entrypoint: 'dist/agent.mjs',
-        sha256: 'a'.repeat(64),
-        byteSize: 12,
-      },
-      compatibleRevisions: [],
-      unversionedBindingCompatible: false,
-      outputDirectories: [],
-    };
-    const good = await tree({
-      'ext/piwin.json': JSON.stringify({ sessionBackend: declaration }),
-      'ext/dist/agent.mjs': 'export const adapter = 1;\n',
-    });
-    assert.deepEqual(await checkTree(good, 'ext'), []);
-
-    const escaped = structuredClone(declaration);
-    escaped.artifact.entrypoint = '../secret.mjs';
-    const badPath = await tree({
-      'ext/piwin.json': JSON.stringify({ sessionBackend: escaped }),
-      'ext/dist/agent.mjs': 'export const adapter = 1;\n',
-    });
-    assert.ok((await checkTree(badPath, 'ext')).some((problem) => problem.includes('entrypoint')));
-
-    const future = structuredClone(declaration);
-    future.protocolVersion = 9;
-    const badProtocol = await tree({
-      'ext/piwin.json': JSON.stringify({ sessionBackend: future }),
-      'ext/dist/agent.mjs': 'export const adapter = 1;\n',
-    });
-    assert.ok((await checkTree(badProtocol, 'ext')).some((problem) => problem.includes('protocol')));
-
-    const missing = await tree({
-      'ext/piwin.json': JSON.stringify({ sessionBackend: declaration }),
-    });
-    assert.ok((await checkTree(missing, 'ext')).some((problem) => problem.includes('artifact is missing')));
-  });
-
   it('accepts a subdir that names a single .ts file', async () => {
     const root = await tree({ 'extensions/tool.ts': 'export default () => {};\n', 'README.md': '#' });
     assert.deepEqual(await checkTree(root, 'extensions/tool.ts'), []);

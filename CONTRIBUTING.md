@@ -12,7 +12,7 @@
 
 piwin 安装时只拉取你指定的 commit，把源码原样放进不可变目录，**不运行 npm，也不运行任何脚本**。所以：
 
-- 工具扩展目录里有 `index.ts`，默认导出 Pi 扩展工厂：`export default function (pi) { … }`；会话后端扩展可以没有 `index.ts`，但 `piwin.json` 必须声明合法的 `sessionBackend`，并且声明的自包含 `.mjs` 入口必须在该 commit 里；
+- 扩展目录里有 `index.ts`，默认导出 Pi 扩展工厂：`export default function (pi) { … }`；
   或者 `subdir` 直接指向一个 `.ts` 文件。
 - `package.json`（如果有）不能有 `dependencies`。Pi 的包只做 `import type` 或放进
   `peerDependencies`；其他依赖请打包进源码。
@@ -91,7 +91,7 @@ commit 和 package.json 版本号，并检查源码），或手动填版本号�
 - 所有权：新条目在你自己的用户名/组织下；改已有条目的人在它原来的 `owners` 里；
 - 历史只追加：已发布版本的 commit、发布时间不变，唯一允许的改动是撤回；条目不能删除；
 - 改装：`forkOf` 指向的条目和版本存在、不是自己、许可证允许；
-- 源码：逐个拉取新版本的 commit（`--depth 1`，只读），检查 `index.ts` 或合法 `sessionBackend`、依赖、安装脚本、符号链接和大小。不执行 PR 里的代码。
+- 源码：逐个拉取新版本的 commit（`--depth 1`，只读），检查 `index.ts`、依赖、安装脚本、符号链接和大小。
 
 通过 CI 只说明结构合规，**不等于安全审查**；扩展在用户机器上以用户权限运行。
 

@@ -6,7 +6,7 @@ import { lstat, mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { promisify } from 'node:util';
-import { checkPackageJsonText, checkSourceListing, readSessionBackend } from './source-rules.mjs';
+import { checkPackageJsonText, checkSourceListing } from './source-rules.mjs';
 
 export { SOURCE_LIMITS } from './source-rules.mjs';
 
@@ -37,25 +37,9 @@ export async function checkTree(root, subdir) {
   const listing = [];
   await walk(root, root, listing);
   const result = checkSourceListing(listing, subdir);
-  const problems = [...result.problems];
-  if (result.packageJsonPath) {
-    problems.push(...checkPackageJsonText(await readFile(join(root, result.packageJsonPath), 'utf8')));
-  }
-  if (result.kind !== 'dir') return problems;
-  if (!result.manifestPath) return problems;
-  const backend = readSessionBackend(await readFile(join(root, result.manifestPath), 'utf8'));
-  if (result.requiresBackend && backend.entrypoint === null && backend.problems.length === 0) {
-    problems.push(`${subdir ?? 'repository root'} has no index.ts and piwin.json declares no sessionBackend`);
-  }
-  problems.push(...backend.problems);
-  if (backend.entrypoint !== null) {
-    const prefix = subdir ? `${subdir}/` : '';
-    const artifactPath = `${prefix}${backend.entrypoint}`;
-    if (!listing.some((item) => item.path === artifactPath && item.kind === 'file')) {
-      problems.push(`declared sessionBackend artifact is missing: ${backend.entrypoint}`);
-    }
-  }
-  return problems;
+  if (!result.packageJsonPath) return result.problems;
+  const raw = await readFile(join(root, result.packageJsonPath), 'utf8');
+  return [...result.problems, ...checkPackageJsonText(raw)];
 }
 
 /** lstat walk: symlinks are reported, never followed; node_modules is not entered. */
