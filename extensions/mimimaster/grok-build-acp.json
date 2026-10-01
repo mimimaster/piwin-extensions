@@ -1,0 +1,22 @@
+{
+  "name": "Grok Build ACP",
+  "description": "通过已安装的扩展在 piwin 中运行 Grok Build。产物是自包含适配器，不包含 Grok CLI。",
+  "owners": [
+    "mimimaster"
+  ],
+  "repository": "https://github.com/mimimaster/grok-build-acp",
+  "license": "MIT",
+  "keywords": [
+    "grok",
+    "acp",
+    "session",
+    "backend"
+  ],
+  "homepage": "https://github.com/mimimaster/grok-build-acp",
+  "versions": [
+    {
+      "version": "1.0.0",
+      "commit": "b6e09c7664004f83f02d3a6ed29cf97085145861"
+    }
+  ]
+}
