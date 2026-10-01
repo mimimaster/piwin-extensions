@@ -1,6 +1,6 @@
 {
   "name": "Session Importer for piwin",
-  "description": "Import and resume coding conversations from Claude Code, Cursor, Codex, and OpenCode into piwin with interactive UI.",
+  "description": "提供交互式界面，支持从 Claude Code、Cursor、Codex 和 OpenCode 导入并恢复历史对话会话。",
   "owners": [
     "mimimaster"
   ],

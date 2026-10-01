@@ -1,6 +1,6 @@
 {
   "name": "Command Code for piwin",
-  "description": "Adds Command Code login, Go/GOAT model access, dynamic model discovery, and quota commands to piwin. Adapted from patlux/pi-commandcode-provider.",
+  "description": "为 piwin 接入 Command Code 登录、Go/GOAT 模型访问、动态模型发现及配额查询命令。改编自 patlux/pi-commandcode-provider。",
   "owners": [
     "mimimaster"
   ],

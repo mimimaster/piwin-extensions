@@ -1,6 +1,6 @@
 {
   "name": "Kiro for piwin",
-  "description": "Adds Kiro (AWS CodeWhisperer/Q) models (Claude Opus/Sonnet, DeepSeek, GPT-5.6-Luna) and native OAuth authentication to piwin. Adapted from mikeyobrien/pi-provider-kiro.",
+  "description": "为 piwin 接入 Kiro (AWS CodeWhisperer/Q) 模型（Claude Opus/Sonnet、DeepSeek、GPT-5.6-Luna）及原生 OAuth 登录授权。改编自 mikeyobrien/pi-provider-kiro。",
   "owners": [
     "mimimaster"
   ],
