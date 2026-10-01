@@ -1,0 +1,23 @@
+{
+  "name": "Session Importer for piwin",
+  "description": "Import and resume coding conversations from Claude Code, Cursor, Codex, and OpenCode into piwin with interactive UI.",
+  "owners": [
+    "mimimaster"
+  ],
+  "repository": "https://github.com/mimimaster/piwin-session-importer",
+  "license": "MIT",
+  "keywords": [
+    "session",
+    "import",
+    "claude",
+    "cursor",
+    "codex"
+  ],
+  "homepage": "https://github.com/mimimaster/piwin-session-importer",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "commit": "460c8cf7ea52a32f0366cbd8cd6661e53eb6deb0"
+    }
+  ]
+}
