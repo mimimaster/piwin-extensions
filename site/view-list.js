@@ -35,7 +35,7 @@ export function listView(extensions, query, onQuery) {
       h('p', { class: 'eyebrow' }, 'piwin · 社区扩展'),
       h('h1', {}, '给 piwin 添一支笔'),
       h('p', { class: 'hero-lead' },
-        '社区写的 Pi 扩展，每个版本都钉在作者仓库的一个 commit 上。piwin 只拉取那个 commit，不跑 npm，也不跑安装脚本。'),
+        'piwin 扩展站。对于部分支持或者无法支持的扩展，你可以进行改造，基本上是做桌面 UI 功能适配，独立成仓库，提交 PR 至 piwin-extensions 仓库，或者直接在这里上传，GitHub 登录可选择仓库直接申请合并。'),
       h('label', { class: 'search-box' }, icon('search', 18), input),
       h('div', { class: 'stats' },
         stat(extensions.length, '个扩展'),
@@ -91,9 +91,9 @@ function emptyState(registryEmpty, query) {
 
 function howItWorks() {
   const steps = [
-    ['code', '写一个 Pi 扩展', '一个 index.ts 就够了；不要 npm 依赖，也不要安装脚本。'],
-    ['send', '拖进来一键发布', '用 GitHub 登录，把扩展文件夹拖进「发布扩展」；页面替你建仓库、开 PR，CI 自动检查。'],
-    ['download', '在 piwin 里安装', '合并后几分钟，在桌面端扩展市场搜索名称并点击安装；CLI 暂不使用。'],
+    ['code', '写一个 piwin 扩展', '可以是为 Pi 扩展做 UI 适配，也可以是自研 piwin 扩展。'],
+    ['send', '登录 GitHub 后选择项目或者选择拖一个扩展文件夹进来', '页面替你建仓库、开 PR，CI 自动检查。'],
+    ['download', '在 piwin 里安装', 'PR 合并后，可直接在 piwin 扩展市场中检索到。'],
   ];
   return h('section', { class: 'how' },
     h('h2', {}, '三步上架'),
