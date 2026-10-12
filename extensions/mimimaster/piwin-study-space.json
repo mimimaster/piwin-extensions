@@ -1,6 +1,6 @@
 {
   "name": "Study Space",
-  "description": "可选教学扩展：用 /teacher 学习、助教、原生闪卡复习。默认关闭，不把普通编码会话变成课堂。",
+  "description": "可选教学扩展：从 /teacher 菜单选择助教、学习或复习，也可用 /teacher-ta 等快捷命令。默认关闭，复用原生闪卡。",
   "owners": [
     "mimimaster"
   ],
@@ -14,6 +14,10 @@
   ],
   "homepage": "https://github.com/mimimaster/piwin-study-space",
   "versions": [
+    {
+      "version": "0.1.1",
+      "commit": "05f4ed29ddd35a0eaf355f73267ff33d86095999"
+    },
     {
       "version": "0.1.0",
       "commit": "e5cb59d459a612e8ffbb1962785a46e1c6c0c68d"
