@@ -1,19 +1,23 @@
 {
   "name": "Study Space",
-  "description": "可选教学扩展：从 /teacher 菜单选择助教、学习或复习，也可用 /teacher-ta 等快捷命令。默认关闭，复用原生闪卡。",
+  "description": "可选导师扩展：用 /learn 按知识库学习一个主题，学完的概念写入 wiki，只为答错的点建闪卡；/review 复习，/study 看进度。默认关闭。",
   "owners": [
     "mimimaster"
   ],
   "repository": "https://github.com/mimimaster/piwin-study-space",
   "license": "MIT",
   "keywords": [
-    "teacher",
     "study",
-    "flashcards",
-    "learn"
+    "learn",
+    "wiki",
+    "flashcards"
   ],
   "homepage": "https://github.com/mimimaster/piwin-study-space",
   "versions": [
+    {
+      "version": "0.2.0",
+      "commit": "bb016aed89d7cef34d4cbeed6e9931713d689d18"
+    },
     {
       "version": "0.1.1",
       "commit": "05f4ed29ddd35a0eaf355f73267ff33d86095999"
