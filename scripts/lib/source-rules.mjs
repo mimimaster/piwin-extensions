@@ -164,21 +164,33 @@ export function checkPackageJsonText(raw) {
 
 /**
  * Directories (or the root, as '') that look like a stageable extension:
- * they contain index.ts. Shallow ones first; node_modules and dot dirs skipped.
+ * they contain index.ts or piwin.json. node_modules, dot and test dirs are
+ * skipped. A directory inside another candidate is source of that candidate
+ * (src/auth/index.ts under src/), not its own extension, unless it carries
+ * piwin.json. Directories with piwin.json come first, then shallow ones.
  */
 export function findExtensionRoots(listing, maxDepth = 3) {
-  return listing
-    .filter((item) => item.kind === 'file' && (
-      item.path === 'index.ts' || item.path.endsWith('/index.ts') ||
-      item.path === 'piwin.json' || item.path.endsWith('/piwin.json')
-    ))
-    .map((item) => item.path.replace(/\/(index\.ts|piwin\.json)$/, '').replace(/^(index\.ts|piwin\.json)$/, ''))
-    .filter((dir) => {
-      const segments = dir ? dir.split('/') : [];
-      return (
-        segments.length <= maxDepth &&
-        !segments.some((segment) => segment === 'node_modules' || segment.startsWith('.') || segment === 'test' || segment === 'tests')
-      );
-    })
-    .sort((left, right) => left.split('/').length - right.split('/').length || left.localeCompare(right));
+  const candidates = new Set();
+  const manifested = new Set();
+  for (const item of listing) {
+    if (item.kind !== 'file') continue;
+    const match = /^(?:(.+)\/)?(index\.ts|piwin\.json)$/.exec(item.path);
+    if (!match) continue;
+    const dir = match[1] ?? '';
+    const segments = dir ? dir.split('/') : [];
+    if (
+      segments.length > maxDepth ||
+      segments.some((segment) => segment === 'node_modules' || segment.startsWith('.') || segment === 'test' || segment === 'tests')
+    ) continue;
+    candidates.add(dir);
+    if (match[2] === 'piwin.json') manifested.add(dir);
+  }
+  const isNested = (dir) => [...candidates].some((other) => other !== dir && (other === '' || dir.startsWith(`${other}/`)));
+  const depth = (dir) => (dir ? dir.split('/').length : 0);
+  return [...candidates]
+    .filter((dir) => manifested.has(dir) || !isNested(dir))
+    .sort((left, right) =>
+      Number(manifested.has(right)) - Number(manifested.has(left)) ||
+      depth(left) - depth(right) ||
+      left.localeCompare(right));
 }

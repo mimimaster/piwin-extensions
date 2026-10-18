@@ -370,4 +370,18 @@ describe('source rules on a listing (what the web front end checks)', async () =
     assert.deepEqual(findExtensionRoots(listing), ['extension']);
     assert.deepEqual(findExtensionRoots([{ path: 'index.ts', kind: 'file' }]), ['']);
   });
+
+  it('prefers the piwin.json directory over nested upstream source', () => {
+    const bundled = [
+      { path: 'package.json', kind: 'file' },
+      { path: 'src/index.ts', kind: 'file' },
+      { path: 'src/auth/index.ts', kind: 'file' },
+      { path: 'src/client/index.ts', kind: 'file' },
+      { path: 'piwin/index.ts', kind: 'file' },
+      { path: 'piwin/piwin.json', kind: 'file' },
+      { path: 'piwin/package.json', kind: 'file' },
+    ];
+    assert.deepEqual(findExtensionRoots(bundled), ['piwin', 'src']);
+    assert.deepEqual(findExtensionRoots([...bundled, { path: 'index.ts', kind: 'file' }]), ['piwin', '']);
+  });
 });

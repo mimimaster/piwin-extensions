@@ -21,14 +21,14 @@ export async function lookupRepository(input, extensions) {
   // Pick the extension directory first, then inspect exactly that target.
   const probe = await inspectSource({ repository: url, commit, subdir: '' });
   const roots = probe.roots;
-  const subdir = roots.includes('') ? '' : roots.length === 1 ? roots[0] : '';
+  const subdir = roots[0] ?? '';
   const source = subdir === '' ? probe : await inspectSource({ repository: url, commit, subdir });
 
   const suggestions = {
     repository: url,
     owner: repo.owner.toLowerCase(),
-    slug: toSlug(subdir ? subdir.split('/').pop() : repo.name),
-    name: toTitle(subdir ? subdir.split('/').pop() : repo.name),
+    slug: toSlug(nameSource(subdir, repo.name)),
+    name: toTitle(nameSource(subdir, repo.name)),
     description: repo.description.slice(0, 500),
     license: repo.license,
     homepage: repo.homepage,
@@ -47,6 +47,15 @@ export async function lookupRepository(input, extensions) {
   }
   const alreadyListed = extensions.find((entry) => entry.repository.toLowerCase() === url.toLowerCase());
   return { repo, commit, roots, suggestions, forkBase, alreadyListed, source };
+}
+
+// Folder names that say where the build lives, not what the extension is.
+const GENERIC_DIRS = new Set(['piwin', 'extension', 'extensions', 'dist', 'build', 'src']);
+
+/** The extension path's last segment, or the repository name when that segment is generic. */
+export function nameSource(subdir, repoName) {
+  const leaf = subdir.replace(/\/+$/, '').split('/').pop() ?? '';
+  return leaf && !GENERIC_DIRS.has(leaf.toLowerCase()) ? leaf : repoName;
 }
 
 export function toSlug(value) {
