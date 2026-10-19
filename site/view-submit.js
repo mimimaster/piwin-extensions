@@ -9,7 +9,7 @@ import { fetchHeadCommit, fetchRepository, parseRepositoryInput } from './github
 import { describeProblem } from './problem-text.js';
 import { latestInstallable } from './search.js';
 import { inspectSource } from './source-inspect.js';
-import { lookupRepository, toSlug, toTitle } from './submit-autofill.js';
+import { lookupRepository, nameSource, toSlug, toTitle } from './submit-autofill.js';
 import { avatar, icon } from './ui.js';
 import { resultBlock } from './view-result.js';
 
@@ -158,7 +158,7 @@ export function submitView(extensions) {
 
   /** Until the user types their own, name the extension after its path. */
   function followSubdir() {
-    const leaf = controls.subdir.value.trim().replace(/\/+$/, '').split('/').pop();
+    const leaf = nameSource(controls.subdir.value.trim(), parseRepositoryInput(controls.repository.value)?.repo ?? '');
     if (!leaf) return;
     if (!edited.has('slug')) controls.slug.value = toSlug(leaf);
     if (!edited.has('name')) controls.name.value = toTitle(leaf);

@@ -26,7 +26,17 @@ before(async () => {
     publish: await load('publish-flow.js'),
     github: await load('github-write.js'),
     entry: await load('lib/entry.mjs'),
+    autofill: await load('submit-autofill.js'),
   };
+});
+
+describe('submit autofill naming', () => {
+  it('names after the path, falling back to the repository for generic folders', () => {
+    const { nameSource } = site.autofill;
+    assert.equal(nameSource('extensions/web-search', 'tools'), 'web-search');
+    assert.equal(nameSource('piwin', 'piwin-antigravity-provider'), 'piwin-antigravity-provider');
+    assert.equal(nameSource('', 'my-ext'), 'my-ext');
+  });
 });
 
 const text = (value) => new TextEncoder().encode(value);
