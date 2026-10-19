@@ -1,7 +1,7 @@
 {
   "$schema": "../../../schema/entry.schema.json",
   "name": "OpenCode Zen for piwin (Experimental)",
-  "description": "免登录接入 OpenCode Zen 公共模型的实验扩展。需要包含 modelProvider 支持的新版 piwin Host；不保证上游可用性。改编自 ZhiAo1120/pi-opencode-zen，保留 MIT 许可。",
+  "description": "免登录接入 OpenCode Zen 免费模型的实验扩展。安装启用时在线拉取当前目录，支持手动刷新；拉取失败显示空列表，不内置模型。需要支持公共扩展动态目录的新版 piwin Host。保留上游 MIT 许可。",
   "owners": [
     "mimimaster"
   ],
@@ -15,6 +15,10 @@
   ],
   "homepage": "https://github.com/mimimaster/piwin-opencode-zen#readme",
   "versions": [
+    {
+      "version": "0.2.0",
+      "commit": "16a9c2654d53e03d3135c5bbf10082fd9e5fb293"
+    },
     {
       "version": "0.1.0",
       "commit": "bfd79718ca1ef8480feddc472d946a7896d82a12"
