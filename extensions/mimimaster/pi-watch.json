@@ -1,0 +1,25 @@
+{
+  "name": "Pi Watch",
+  "description": "用 /watch 看视频：按时间抽取关键帧，优先读取字幕，没有字幕时用本地 Whisper 转写（依赖 yt-dlp、ffmpeg），把带时间戳的字幕/转写和画面注入当前会话。支持本地文件和在线视频链接。",
+  "owners": [
+    "mimimaster"
+  ],
+  "repository": "https://github.com/mimimaster/pi-watch",
+  "license": "MIT",
+  "keywords": [
+    "watch",
+    "video",
+    "transcript",
+    "subtitles",
+    "ffmpeg",
+    "whisper",
+    "yt-dlp"
+  ],
+  "homepage": "https://github.com/mimimaster/pi-watch#readme",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "commit": "6a7b428849a910548fb98a4fdcae5273a14f7de3"
+    }
+  ]
+}
