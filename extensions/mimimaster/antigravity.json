@@ -16,6 +16,10 @@
   "homepage": "https://github.com/mimimaster/piwin-antigravity-backend",
   "versions": [
     {
+      "version": "0.1.1",
+      "commit": "7a9b1979ddebd3ff92ad324dec27d388102b489b"
+    },
+    {
       "version": "0.1.0",
       "commit": "d04faa1e17d9a4ad84a34a07966c51d140b9c079"
     }
