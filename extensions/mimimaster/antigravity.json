@@ -1,0 +1,23 @@
+{
+  "name": "Antigravity",
+  "description": "通过已安装的扩展在 piwin 中运行本机 Antigravity (agy ACP)。产物是自包含适配器，不包含 Antigravity CLI。",
+  "owners": [
+    "mimimaster"
+  ],
+  "repository": "https://github.com/mimimaster/piwin-antigravity-backend",
+  "license": "MIT",
+  "keywords": [
+    "antigravity",
+    "gemini",
+    "acp",
+    "session",
+    "backend"
+  ],
+  "homepage": "https://github.com/mimimaster/piwin-antigravity-backend",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "commit": "d04faa1e17d9a4ad84a34a07966c51d140b9c079"
+    }
+  ]
+}
