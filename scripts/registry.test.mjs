@@ -269,6 +269,8 @@ describe('source checks', () => {
       schemaVersion: 1,
       id: 'grok',
       name: 'Grok Build',
+      description: 'Official Grok Build ACP backend.',
+      icon: { kind: 'brand', id: 'xai' },
       version: '1.0.0',
       minHostVersion: '0.0.0',
       protocol: 'piwin-agent-stdio',
@@ -313,6 +315,22 @@ describe('source checks', () => {
       'ext/piwin.json': JSON.stringify({ sessionBackend: declaration }),
     });
     assert.ok((await checkTree(missing, 'ext')).some((problem) => problem.includes('artifact is missing')));
+
+    const glyphDeclaration = structuredClone(declaration);
+    glyphDeclaration.icon = { kind: 'glyph', viewBox: '0 0 24 24', paths: ['M12 2 L22 20 L2 20 Z'], fillRule: 'evenodd' };
+    const goodGlyph = await tree({
+      'ext/piwin.json': JSON.stringify({ sessionBackend: glyphDeclaration }),
+      'ext/dist/agent.mjs': 'export const adapter = 1;\n',
+    });
+    assert.deepEqual(await checkTree(goodGlyph, 'ext'), []);
+
+    const badIcon = structuredClone(declaration);
+    badIcon.icon = { kind: 'glyph', viewBox: '0 0 24 24', paths: ['<script>'] };
+    const rejectedIcon = await tree({
+      'ext/piwin.json': JSON.stringify({ sessionBackend: badIcon }),
+      'ext/dist/agent.mjs': 'export const adapter = 1;\n',
+    });
+    assert.ok((await checkTree(rejectedIcon, 'ext')).some((problem) => problem.includes('icon')));
   });
 
   it('accepts a subdir that names a single .ts file', async () => {

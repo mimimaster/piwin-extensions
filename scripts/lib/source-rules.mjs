@@ -65,11 +65,13 @@ export function checkSourceListing(listing, subdir) {
 }
 
 const BACKEND_KEYS = new Set([
-  'schemaVersion', 'id', 'name', 'version', 'minHostVersion', 'protocol', 'protocolVersion',
+  'schemaVersion', 'id', 'name', 'description', 'icon', 'version', 'minHostVersion', 'protocol', 'protocolVersion',
   'minHostProtocolVersion', 'platforms', 'verifiedCliVersions', 'helpUrl', 'artifact',
   'compatibleRevisions', 'unversionedBindingCompatible', 'outputDirectories',
 ]);
 const ARTIFACT_KEYS = new Set(['format', 'entrypoint', 'sha256', 'byteSize']);
+const ICON_BRAND_KEYS = new Set(['kind', 'id']);
+const ICON_GLYPH_KEYS = new Set(['kind', 'viewBox', 'paths', 'fillRule']);
 const PLATFORMS = new Set(['darwin', 'linux', 'win32']);
 
 /**
@@ -130,8 +132,38 @@ export function readSessionBackend(raw) {
       problems.push('sessionBackend artifact byteSize is missing');
     }
   }
+  if (value.description !== undefined && (typeof value.description !== 'string' || value.description.trim().length === 0 || value.description.length > 500)) {
+    problems.push('sessionBackend description must be a non-empty string up to 500 characters');
+  }
+  if (value.icon !== undefined && !isValidBackendIcon(value.icon)) {
+    problems.push('sessionBackend icon must be a valid brand or glyph specification');
+  }
   if (!Array.isArray(value.outputDirectories)) problems.push('sessionBackend outputDirectories are missing');
   return { problems, entrypoint };
+}
+
+function isValidBackendIcon(icon) {
+  if (!icon || typeof icon !== 'object' || Array.isArray(icon)) return false;
+  const keys = Object.keys(icon);
+  if (icon.kind === 'brand') {
+    if (keys.some((key) => !ICON_BRAND_KEYS.has(key))) return false;
+    return typeof icon.id === 'string' && /^[a-z0-9][a-z0-9-]{0,63}$/.test(icon.id);
+  }
+  if (icon.kind === 'glyph') {
+    if (keys.some((key) => !ICON_GLYPH_KEYS.has(key))) return false;
+    if (typeof icon.viewBox !== 'string') return false;
+    const vb = icon.viewBox.trim().split(/\s+/).map(Number);
+    if (vb.length !== 4 || vb.some((n) => !Number.isFinite(n)) || vb[2] <= 0 || vb[2] > 2048 || vb[3] <= 0 || vb[3] > 2048) {
+      return false;
+    }
+    if (!Array.isArray(icon.paths) || icon.paths.length === 0 || icon.paths.length > 32) return false;
+    if (icon.paths.some((d) => typeof d !== 'string' || d.length === 0 || d.length > 8192 || !/^[MmLlHhVvCcSsQqTtAaZz0-9eE+.,\s-]+$/.test(d) || !/^[Mm]/.test(d.trimStart()))) {
+      return false;
+    }
+    if (icon.fillRule !== undefined && icon.fillRule !== 'nonzero' && icon.fillRule !== 'evenodd') return false;
+    return true;
+  }
+  return false;
 }
 
 function isSafeArtifactPath(value) {
