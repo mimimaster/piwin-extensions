@@ -15,6 +15,10 @@
   "homepage": "https://github.com/mimimaster/grok-build-acp",
   "versions": [
     {
+      "version": "1.0.1",
+      "commit": "bd7fa7c843591a89b8ad6623276edf781d955577"
+    },
+    {
       "version": "1.0.0",
       "commit": "b6e09c7664004f83f02d3a6ed29cf97085145861"
     }

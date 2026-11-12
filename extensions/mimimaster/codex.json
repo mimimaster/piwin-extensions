@@ -1,0 +1,22 @@
+{
+  "name": "Codex",
+  "description": "通过已安装的扩展在 piwin 中运行本机 OpenAI Codex (codex app-server)。产物是自包含适配器，不包含 Codex CLI。",
+  "owners": [
+    "mimimaster"
+  ],
+  "repository": "https://github.com/mimimaster/piwin-codex-backend",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "openai",
+    "session",
+    "backend"
+  ],
+  "homepage": "https://github.com/mimimaster/piwin-codex-backend",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "commit": "324cf5746df083f1eb1d04656f683bf97547b828"
+    }
+  ]
+}
