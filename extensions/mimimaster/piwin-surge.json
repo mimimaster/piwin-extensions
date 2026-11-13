@@ -1,6 +1,6 @@
 {
   "name": "Piwin Surge",
-  "description": "会话级系统提示词切换与实验台，支持 strict/replace/append 三种合成模式，深度适配桌面端 /surge 交互菜单、状态芯片与预览面板（基于 pi-purge）。",
+  "description": "会话级系统提示词切换实验台（默认关闭，仅当前会话生效）。安装启用后输入 /surge 打开交互菜单，或 /surge guide 查看快速指南；支持免建文件直接输人设（/surge prompt）与 strict/replace/append 模式（基于 pi-purge）。",
   "owners": [
     "mimimaster"
   ],
@@ -15,6 +15,10 @@
   ],
   "homepage": "https://github.com/mimimaster/piwin-surge",
   "versions": [
+    {
+      "version": "0.1.1",
+      "commit": "8a71c50f650841043b16f695a1ed45691bf09062"
+    },
     {
       "version": "0.1.0",
       "commit": "e7b9113c7526b67124efc8049e7914af4ed43c08"
