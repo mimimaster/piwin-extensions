@@ -1,0 +1,23 @@
+{
+  "name": "Knowledge & Flashcards",
+  "description": "知识库与记忆闪卡扩展：支持 FSRS 间隔重复闪卡（建卡、到期队列、评分、Canvas 交互卡片复习）与本地文档目录 SQLite FTS5 检索（扫描、索引、混合检索），零外部运行时依赖。",
+  "owners": [
+    "mimimaster"
+  ],
+  "repository": "https://github.com/mimimaster/piwin-knowledge",
+  "license": "MIT",
+  "keywords": [
+    "flashcards",
+    "fsrs",
+    "rag",
+    "knowledge",
+    "study"
+  ],
+  "homepage": "https://github.com/mimimaster/piwin-knowledge",
+  "versions": [
+    {
+      "version": "0.1.0",
+      "commit": "d4d11c3f3daffc39270d1fa93a7009ff14420c00"
+    }
+  ]
+}
